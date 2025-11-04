@@ -1,16 +1,22 @@
 package in.maisonnoir.backend.service;
 
-import in.maisonnoir.backend.model.Product;
+import in.maisonnoir.backend.DTO.ProductDTO;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public interface ProductService {
-    List<Product> getAllProducts();
-    Product createProduct(Product product);
-    Optional<Product> getProductById(Long id);
-    Product updateProduct(Long id, Product updatedProduct);
-    Product updateFields(Long id, Map<String, Object> updatedProduct);
+
+    ProductDTO createProduct(ProductDTO dto);
+
+    List<ProductDTO> getAllProducts();
+
+    Optional<ProductDTO> getProductById(Long id);
+
+    ProductDTO updateProduct(Long id, ProductDTO updatedDTO);
+
+    ProductDTO updateFields(Long id, Map<String, Object> updatedFields);
+
     void deleteProduct(Long id);
 }

@@ -1,75 +1,95 @@
 package in.maisonnoir.backend.service.Impl;
 
+import in.maisonnoir.backend.DTO.ProductDTO;
 import in.maisonnoir.backend.Repository.ProductRepository;
-import in.maisonnoir.backend.model.Product;
+import in.maisonnoir.backend.mapper.ProductMapper;
+import in.maisonnoir.backend.entity.ProductEntity;
 import in.maisonnoir.backend.service.ProductService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+
     public ProductServiceImpl(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public ProductDTO createProduct(ProductDTO dto) {
+        ProductEntity entity = ProductMapper.toEntity(dto);
+        ProductEntity saved =  productRepository.save(entity);
+        return ProductMapper.toDTO(saved);
     }
 
-    @Override
-    public Product createProduct(Product product) {
-        return productRepository.save(product);
-    }
 
     @Override
-    public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
+    public List<ProductDTO> getAllProducts() {
+        return productRepository.findAll()
+                .stream()
+                .map(ProductMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
+
     @Override
-    public Product updateProduct(Long id, Product updatedProduct) {
+    public Optional<ProductDTO> getProductById(Long id) {
         return productRepository.findById(id)
-                .map(existing -> {
-                    existing.setName(updatedProduct.getName());
-                    existing.setDescription(updatedProduct.getDescription());
-                    existing.setPrice(updatedProduct.getPrice());
-                    existing.setCategory(updatedProduct.getCategory());
-                    existing.setImage(updatedProduct.getImage());
-                    existing.setIsAvailable(updatedProduct.getIsAvailable());
-                    return productRepository.save(existing);
-                })
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .map(ProductMapper::toDTO);
+
     }
 
     @Override
-    public Product updateFields(Long id, Map<String, Object> updatedProduct) {
-        Product product = productRepository.findById(id)
+    public ProductDTO updateProduct(Long id, ProductDTO updatedDTO) {
+        ProductEntity existing = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
-        updatedProduct.forEach((key, value) -> {
+        existing.setName(updatedDTO.getName());
+        existing.setDescription(updatedDTO.getDescription());
+        existing.setPrice(updatedDTO.getPrice());
+        existing.setCategory(updatedDTO.getCategory());
+        existing.setImage(updatedDTO.getImage());
+        existing.setIsAvailable(updatedDTO.getIsAvailable());
+
+        ProductEntity saved = productRepository.save(existing);
+        return ProductMapper.toDTO(saved);
+
+    }
+
+    @Override
+    public ProductDTO updateFields(Long id, Map<String, Object> updatedFields) {
+        ProductEntity existing = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        updatedFields.forEach((key, value) -> {
             switch (key) {
-                case "price" -> product.setPrice(Double.valueOf(value.toString()));
-                case "isAvailable" -> product.setIsAvailable(Boolean.valueOf(value.toString()));
-                case "name" -> product.setName(value.toString());
-                case "description" -> product.setDescription(value.toString());
-                case "category" -> product.setCategory(value.toString());
-                case "image" -> product.setImage(value.toString());
+                case "name" -> existing.setName((String) value);
+                case "description" -> existing.setDescription((String) value);
+                case "price" -> existing.setPrice(Double.parseDouble(value.toString()));
+                case "category" -> existing.setCategory((String) value);
+                case "imageUrl" -> existing.setImage((String) value);
+                case "isAvailable" -> existing.setIsAvailable(Boolean.parseBoolean(value.toString()));
+                default -> throw new IllegalArgumentException("Invalid field: " + key);
             }
         });
 
-        return productRepository.save(product);
-
+        ProductEntity saved = productRepository.save(existing);
+        return ProductMapper.toDTO(saved);
     }
 
     @Override
     public void deleteProduct(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new RuntimeException("Product not found");
+        }
         productRepository.deleteById(id);
+
     }
 
 }
