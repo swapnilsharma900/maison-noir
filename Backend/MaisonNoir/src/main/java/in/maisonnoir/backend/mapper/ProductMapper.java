@@ -9,9 +9,9 @@ public class ProductMapper {
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
-                .category(dto.getCategory())
-                .image(dto.getImage())
-                .isAvailable(dto.getIsAvailable())
+                .category( (dto.getCategory() != null) ? dto.getCategory() : "UNSPECIFIED" )
+                .image( (dto.getImage() != null) ? dto.getImage() : "image.url" )
+                .isAvailable( (dto.getIsAvailable() != null) ? dto.getIsAvailable() : false )
                 .build();
     }
 

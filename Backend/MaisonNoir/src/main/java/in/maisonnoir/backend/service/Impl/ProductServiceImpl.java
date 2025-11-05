@@ -28,7 +28,6 @@ public class ProductServiceImpl implements ProductService {
         return ProductMapper.toDTO(saved);
     }
 
-
     @Override
     public List<ProductDTO> getAllProducts() {
         return productRepository.findAll()
@@ -36,7 +35,6 @@ public class ProductServiceImpl implements ProductService {
                 .map(ProductMapper::toDTO)
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public Optional<ProductDTO> getProductById(Long id) {
