@@ -1,9 +1,6 @@
 package in.maisonnoir.backend.DTO;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Getter
@@ -17,15 +14,20 @@ public class ProductDTO {
     @Size(max = 100)
     private String name;
 
+    @NotBlank(message = "Product Description is Required")
+    @Size(max = 1000, message = "Product Description should not be more than 1000 characters")
     private String description;
 
-    @NotNull
-    @DecimalMin(value = "0.0", message = "Price must be Positive")
+    @NotNull(message = "Price is required")
+    @Positive(message = "Price must be positive")
     private Double price;
 
+    @NotBlank(message = "Image URL is required")
     private String image;
 
+    @NotBlank(message = "Category is required")
     private String category;
 
+    @NotNull(message = "Availability status is required")
     private Boolean isAvailable;
 }
