@@ -23,10 +23,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDTO createOrder(OrderDTO dto) {
         OrderEntity entity = OrderMapper.toEntity(dto);
-        entity.setPlacedAt(LocalDateTime.now());
+        entity.setPlacedAt(LocalDateTime.now());          // Timestamp still set
         OrderEntity saved = orderRepository.save(entity);
         return OrderMapper.toDTO(saved);
     }
+
 
     @Override
     public List<OrderDTO> getAllOrders() {

@@ -1,5 +1,6 @@
 package in.maisonnoir.backend.DTO;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +13,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -23,7 +25,6 @@ public class OrderDTO {
     @Size(max = 100)
     private String orderNumber;
 
-    @NotNull(message = "PlacedAt timestamp is required")
     private LocalDateTime placedAt;
 
     @NotNull(message = "Total amount is required")
@@ -33,4 +34,8 @@ public class OrderDTO {
     @NotBlank(message = "Status is required")
     private String status;
 
+    @Valid
+    @NotNull(message = "Order items are required")
+    @Size(min = 1, message = "At least one item is required")
+    private List<OrderItemDTO> items;
 }
