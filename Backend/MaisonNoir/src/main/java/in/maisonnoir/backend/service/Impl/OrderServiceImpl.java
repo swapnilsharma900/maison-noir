@@ -5,6 +5,7 @@ import in.maisonnoir.backend.Repository.OrderRepository;
 import in.maisonnoir.backend.entity.OrderEntity;
 import in.maisonnoir.backend.mapper.OrderMapper;
 import in.maisonnoir.backend.service.OrderService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,13 +13,10 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-
-    public OrderServiceImpl(OrderRepository orderRepository) {
-        this.orderRepository = orderRepository;
-    }
 
     @Override
     public OrderDTO createOrder(OrderDTO dto) {

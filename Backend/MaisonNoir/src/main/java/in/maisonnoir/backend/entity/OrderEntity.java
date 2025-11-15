@@ -23,15 +23,19 @@ public class OrderEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     @NotBlank(message = "Order Number is required")
     private String orderNumber;
 
+    @Column(nullable = false)
     private LocalDateTime placedAt;
 
+    @Column(nullable = false)
     @NotNull(message = "Amount is required")
     @Positive(message = "Amount must be positive")
     private BigDecimal totalAmount;
 
+    @Column(nullable = false)
     @NotBlank(message = "Status is required")
     private String status;
 

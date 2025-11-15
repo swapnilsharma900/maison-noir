@@ -1,6 +1,7 @@
 package in.maisonnoir.backend.exception;
 
 import in.maisonnoir.backend.payload.ApiResponse;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -35,6 +36,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> handleGenericException(Exception ex) {
         ApiResponse response = new ApiResponse(false, "Something went wrong: " + ex.getMessage(), null);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+        String message = ex.getMessage();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiResponse(false, message, null));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String message = "Duplicate entry or constraint violation: " + ex.getRootCause().getMessage();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ApiResponse(false, message, null));
     }
 
 }

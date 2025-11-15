@@ -5,6 +5,7 @@ import in.maisonnoir.backend.Repository.ProductRepository;
 import in.maisonnoir.backend.mapper.ProductMapper;
 import in.maisonnoir.backend.entity.ProductEntity;
 import in.maisonnoir.backend.service.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,13 +14,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
-
-    public ProductServiceImpl(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
 
     @Override
     public ProductDTO createProduct(ProductDTO dto) {

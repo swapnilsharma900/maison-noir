@@ -4,6 +4,7 @@ import in.maisonnoir.backend.DTO.OrderDTO;
 import in.maisonnoir.backend.payload.ApiResponse;
 import in.maisonnoir.backend.service.OrderService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,13 +12,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
-
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
-    }
 
     @PostMapping
     public ResponseEntity<ApiResponse> createOrder(@RequestBody @Valid OrderDTO dto) {
