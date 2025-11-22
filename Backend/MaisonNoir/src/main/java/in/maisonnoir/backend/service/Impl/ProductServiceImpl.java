@@ -35,14 +35,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Optional<ProductDTO> getProductById(Long id) {
+    public Optional<ProductDTO> getProductById(String id) {
         return productRepository.findById(id)
                 .map(ProductMapper::toDTO);
 
     }
 
     @Override
-    public ProductDTO updateProduct(Long id, ProductDTO updatedDTO) {
+    public ProductDTO updateProduct(String id, ProductDTO updatedDTO) {
         ProductEntity existing = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -59,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductDTO updateFields(Long id, Map<String, Object> updatedFields) {
+    public ProductDTO updateFields(String id, Map<String, Object> updatedFields) {
         ProductEntity existing = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
@@ -80,7 +80,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteProduct(Long id) {
+    public void deleteProduct(String id) {
         if (!productRepository.existsById(id)) {
             throw new RuntimeException("Product not found");
         }

@@ -12,11 +12,11 @@ public interface ProductService {
 
     List<ProductDTO> getAllProducts();
 
-    Optional<ProductDTO> getProductById(Long id);
+    Optional<ProductDTO> getProductById(String id);
 
-    ProductDTO updateProduct(Long id, ProductDTO updatedDTO);
+    ProductDTO updateProduct(String id, ProductDTO updatedDTO);
 
-    ProductDTO updateFields(Long id, Map<String, Object> updatedFields);
+    ProductDTO updateFields(String id, Map<String, Object> updatedFields);
 
-    void deleteProduct(Long id);
+    void deleteProduct(String id);
 }
