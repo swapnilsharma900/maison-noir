@@ -1,7 +1,7 @@
 package in.maisonnoir.backend.api.product.service.impl;
 
 import in.maisonnoir.backend.api.product.model.dto.ProductDTO;
-import in.maisonnoir.backend.api.product.repository.ProductRepository;
+import in.maisonnoir.backend.api.product.repository.ProductDAO;
 import in.maisonnoir.backend.api.product.mapper.ProductMapper;
 import in.maisonnoir.backend.api.product.model.entity.ProductEntity;
 import in.maisonnoir.backend.api.product.service.ProductService;
@@ -17,18 +17,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepository productRepository;
+    private final ProductDAO productDAO;
 
     @Override
     public ProductDTO createProduct(ProductDTO dto) {
         ProductEntity entity = ProductMapper.toEntity(dto);
-        ProductEntity saved =  productRepository.save(entity);
+        ProductEntity saved =  productDAO.save(entity);
         return ProductMapper.toDTO(saved);
     }
 
     @Override
     public List<ProductDTO> getAllProducts() {
-        return productRepository.findAll()
+        return productDAO.findAll()
                 .stream()
                 .map(ProductMapper::toDTO)
                 .collect(Collectors.toList());
@@ -36,14 +36,14 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Optional<ProductDTO> getProductById(String id) {
-        return productRepository.findById(id)
+        return productDAO.findById(id)
                 .map(ProductMapper::toDTO);
 
     }
 
     @Override
     public ProductDTO updateProduct(String id, ProductDTO updatedDTO) {
-        ProductEntity existing = productRepository.findById(id)
+        ProductEntity existing = productDAO.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         existing.setName(updatedDTO.getName());
@@ -53,14 +53,14 @@ public class ProductServiceImpl implements ProductService {
         existing.setImage(updatedDTO.getImage());
         existing.setIsAvailable(updatedDTO.getIsAvailable());
 
-        ProductEntity saved = productRepository.save(existing);
+        ProductEntity saved = productDAO.save(existing);
         return ProductMapper.toDTO(saved);
 
     }
 
     @Override
     public ProductDTO updateFields(String id, Map<String, Object> updatedFields) {
-        ProductEntity existing = productRepository.findById(id)
+        ProductEntity existing = productDAO.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found"));
 
         updatedFields.forEach((key, value) -> {
@@ -75,16 +75,16 @@ public class ProductServiceImpl implements ProductService {
             }
         });
 
-        ProductEntity saved = productRepository.save(existing);
+        ProductEntity saved = productDAO.save(existing);
         return ProductMapper.toDTO(saved);
     }
 
     @Override
     public void deleteProduct(String id) {
-        if (!productRepository.existsById(id)) {
+        if (!productDAO.existsById(id)) {
             throw new RuntimeException("Product not found");
         }
-        productRepository.deleteById(id);
+        productDAO.deleteById(id);
 
     }
 

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductRepository extends MongoRepository<ProductEntity, String> {
+public interface ProductDAO extends MongoRepository<ProductEntity, String> {
     List<ProductEntity> findByCategory(String category);
 }
