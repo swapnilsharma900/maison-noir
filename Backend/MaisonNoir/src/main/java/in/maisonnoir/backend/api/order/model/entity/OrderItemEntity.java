@@ -1,15 +1,21 @@
 package in.maisonnoir.backend.api.order.model.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import in.maisonnoir.backend.api.product.model.entity.ProductEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.math.BigDecimal;
 
-@Entity
-@Table(name = "order_items")
+@Document(collection = "order_items")
 @Builder
 @Getter
 @Setter
@@ -17,28 +23,19 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class OrderItemEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id; // MongoDB ObjectId
 
-    @Column(nullable = false)
-    @NotNull(message = "Product ID is required")
-    private Long productId;
+    @Indexed
+    private Long orderId; // Reference to MySQL OrderEntity
 
-    @Column(nullable = false)
-    @NotBlank(message = "Order Number is required")
-    private String productName;
+    private ProductEntity product; // Embedded product snapshot
 
-    @Column(nullable = false)
-    @NotNull(message = "Price is required")
-    @Positive(message = "Price must be positive")
-    private BigDecimal price;
+    private String selectedSize; // Selected variant size
 
     @Column(nullable = false)
     @NotNull(message = "Quantity is required")
     @Positive(message = "Quantity must be positive")
-    private int quantity;
+    private Integer quantity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private OrderEntity order;
+    private BigDecimal priceAtOrder; // Price snapshot at time of order
 }

@@ -1,21 +1,15 @@
 package in.maisonnoir.backend.api.account.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Entity
-@Table(name = "addresses")
+@Table(name = "address")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,19 +20,24 @@ public class AddressEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String street;
+    @Column(nullable = false)
+    private String mainLine; // Flat No, House No
+
+    @Column(nullable = false)
+    private String locality; // Building, society, colony, street
+
+    private String landmark;
+
+    @Column(nullable = false)
     private String city;
+
+    @Column(nullable = false)
     private String state;
+
+    @Column(nullable = false)
     private String postalCode;
+
+    @Column(nullable = false)
     private String country;
-
-    private Double latitude;
-    private Double longitude;
-
-    private boolean isDefault;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
 
 }

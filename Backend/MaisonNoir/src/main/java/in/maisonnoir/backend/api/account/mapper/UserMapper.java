@@ -1,28 +1,47 @@
 package in.maisonnoir.backend.api.account.mapper;
 
-import in.maisonnoir.backend.api.account.model.dto.UserDTO;
+import in.maisonnoir.backend.api.account.model.dto.user.UserRegistrationDTO;
+import in.maisonnoir.backend.api.account.model.dto.user.UserResponseDTO;
+import in.maisonnoir.backend.api.account.model.dto.user.UserUpdateDTO;
 import in.maisonnoir.backend.api.account.model.entity.UserEntity;
 
 public class UserMapper {
 
-    public static UserEntity toEntity(UserDTO dto) {
+    public static UserEntity toEntity(UserRegistrationDTO dto) {
         return UserEntity.builder()
-                .userId(dto.getId())
-                .name(dto.getName())
+                .userName(dto.getUserName())
                 .email(dto.getEmail())
-                .password(dto.getPassword())
-                .role(dto.getRole())
+                .address(dto.getAddress() == null ? null : AddressMapper.toEntity(dto.getAddress()))
                 .build();
     }
 
-    public static UserDTO toDTO(UserEntity entity) {
-        return UserDTO.builder()
-                .id(entity.getUserId())
-                .name(entity.getName())
+    public static boolean applyUpdate(UserUpdateDTO dto, UserEntity entity) {
+        boolean changed = false;
+
+        if (dto.getUserName() != null && !dto.getUserName().isBlank()) {
+            entity.setUserName(dto.getUserName());
+            changed = true;
+        }
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            entity.setEmail(dto.getEmail());
+            changed = true;
+        }
+        if (dto.getAddress() != null) {
+            entity.setAddress(AddressMapper.toEntity(dto.getAddress()));
+            changed = true;
+        }
+        return changed;
+    }
+
+    public static UserResponseDTO toResponse(UserEntity entity) {
+        // converting AccountRole to String type
+        String role = entity.getRole() != null ? entity.getRole().toString() : null;
+        return UserResponseDTO.builder()
+                .userId(entity.getUserId())
+                .userName(entity.getUserName())
                 .email(entity.getEmail())
-                .password(entity.getPassword())
-                .role(entity.getRole())
+                .role(role)
+                .address(entity.getAddress() == null ? null : AddressMapper.toDTO(entity.getAddress()))
                 .build();
     }
-
 }

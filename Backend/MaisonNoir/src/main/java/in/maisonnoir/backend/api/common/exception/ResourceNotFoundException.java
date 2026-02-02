@@ -1,4 +1,4 @@
-package in.maisonnoir.backend.exception;
+package in.maisonnoir.backend.api.common.exception;
 
 import lombok.Getter;
 

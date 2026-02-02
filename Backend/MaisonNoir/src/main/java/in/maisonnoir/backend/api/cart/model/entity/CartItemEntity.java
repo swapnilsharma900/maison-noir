@@ -1,24 +1,22 @@
 package in.maisonnoir.backend.api.cart.model.entity;
 
 import in.maisonnoir.backend.api.product.model.entity.ProductEntity;
-
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
 import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "cart_items")
+import java.math.BigDecimal;
+
+@Document(collection = "cart_items")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,15 +25,18 @@ import jakarta.persistence.ManyToOne;
 public class CartItemEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String itemId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id")
-    private CartEntity cart;
+    @Indexed
+    private Long cartId;
 
-    private String productId;
+    private ProductEntity product;
 
-    private int quantity;
+    @Min(value = 1, message = "Quantity must be at least 1")
+    @Max(value = 10, message = "Quantity must be less than 10")
+    private Integer quantity;
+
+    @Positive
+    private BigDecimal totalPrice;
 
 }

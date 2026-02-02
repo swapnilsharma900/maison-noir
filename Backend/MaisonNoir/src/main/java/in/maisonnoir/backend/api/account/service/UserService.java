@@ -1,19 +1,27 @@
 package in.maisonnoir.backend.api.account.service;
 
-import in.maisonnoir.backend.api.account.model.dto.UserDTO;
+import in.maisonnoir.backend.api.account.model.dto.user.UserRegistrationDTO;
+import in.maisonnoir.backend.api.account.model.dto.user.UserResponseDTO;
+import in.maisonnoir.backend.api.account.model.dto.user.UserUpdateDTO;
 
 import java.util.List;
 
 public interface UserService {
 
-    UserDTO createUser(UserDTO userDTO);
+    // CUSTOMER SERVICES
+    UserResponseDTO createUser(UserRegistrationDTO userDTO);
 
-    UserDTO getUserById(Long userId);
+    UserResponseDTO getUser();
 
-    List<UserDTO> getAllUsers();
+    UserResponseDTO updateUser(UserUpdateDTO userDTO);
 
-    UserDTO updateUser(Long userId, UserDTO userDTO);
+    void deleteUser();
 
-    void deleteUser(Long userId);
 
+    // ADMIN SERVICES
+    UserResponseDTO getUserById(Long userId);
+
+    List<UserResponseDTO> getAllUsers();
+
+    void deleteUserById(Long userId);
 }

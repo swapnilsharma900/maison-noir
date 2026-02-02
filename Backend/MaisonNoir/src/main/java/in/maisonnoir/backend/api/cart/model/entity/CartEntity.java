@@ -1,24 +1,23 @@
 package in.maisonnoir.backend.api.cart.model.entity;
 
-import in.maisonnoir.backend.api.account.model.entity.UserEntity;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
+import jakarta.persistence.JoinColumn;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,16 +29,21 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class CartEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long cartId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", unique = true)
-    private UserEntity user;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "cart_items", joinColumns = @JoinColumn(name = "cart_id"))
+    @Column(name = "item_id")
+    @Builder.Default
+    private List<String> cartItemIds = new ArrayList<>();
 
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CartItemEntity> items = new ArrayList<>();
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 
+    @Column(nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal totalAmount = BigDecimal.ZERO;
 }
+

@@ -1,18 +1,18 @@
 package in.maisonnoir.backend.api.account.service.impl;
 
 import in.maisonnoir.backend.api.account.mapper.AddressMapper;
-import in.maisonnoir.backend.api.account.model.dto.AddressDTO;
+import in.maisonnoir.backend.api.account.model.dto.address.AddressDTO;
 import in.maisonnoir.backend.api.account.model.entity.AddressEntity;
 import in.maisonnoir.backend.api.account.model.entity.UserEntity;
 import in.maisonnoir.backend.api.account.repository.AddressDAO;
 import in.maisonnoir.backend.api.account.repository.UserDAO;
 import in.maisonnoir.backend.api.account.service.AddressService;
+import in.maisonnoir.backend.api.common.exception.DuplicateResourceException;
+import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,57 +21,86 @@ public class AddressServiceImpl implements AddressService {
     private final AddressDAO addressDAO;
     private final UserDAO userDAO;
 
-    @Override
-    public List<AddressDTO> getUserAddresses(Long userId) {
-        return addressDAO.findByUserId(userId)
-                .stream()
-                .map(AddressMapper::toDTO)
-                .collect(Collectors.toList());
+
+    private Long getAuthenticatedUserId() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userDAO.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+        return user.getUserId();
     }
 
     @Override
-    public AddressDTO addAddress(Long userId, AddressDTO addressDTO) {
+    public AddressDTO getUserAddress() {
+        Long userId = getAuthenticatedUserId();
         UserEntity user = userDAO.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        AddressEntity entity = AddressMapper.toEntity(addressDTO);
-        entity.setUser(user);
-
-        // If this address is marked as default, reset others
-        if (entity.isDefault()) {
-            List<AddressEntity> existingAddresses = addressDAO.findByUserId(userId);
-            existingAddresses.forEach(addr -> addr.setDefault(false));
-            addressDAO.saveAll(existingAddresses);
+        AddressEntity address = user.getAddress();
+        if (address == null) {
+            throw new ResourceNotFoundException("Address", "id", userId);
         }
 
-        return AddressMapper.toDTO(addressDAO.save(entity));
+        return AddressMapper.toDTO(address);
     }
 
     @Override
-    public AddressDTO setDefaultAddress(Long userId, Long addressId) {
-        List<AddressEntity> addresses = addressDAO.findByUserId(userId);
+    public AddressDTO addAddress(AddressDTO addressDTO) {
+        Long userId = getAuthenticatedUserId();
+        UserEntity user = userDAO.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        addresses.forEach(addr -> addr.setDefault(addr.getId().equals(addressId)));
-        addressDAO.saveAll(addresses);
+        if (user.getAddress() != null) {
+            throw new DuplicateResourceException(
+                    "Address",
+                    "user id",
+                    userId,
+                    "Try updating address with new address"
+            );
+        }
 
-        return AddressMapper.toDTO(
-                addresses.stream()
-                        .filter(AddressEntity::isDefault)
-                        .findFirst()
-                        .orElseThrow(() -> new RuntimeException("Address not found"))
-        );
+        AddressEntity address = AddressMapper.toEntity(addressDTO);
+        addressDAO.save(address);
+        user.setAddress(address);
+        userDAO.save(user);
+        return AddressMapper.toDTO(address);
     }
 
     @Override
-    public void deleteAddress(Long userId, Long addressId) {
-        AddressEntity entity = addressDAO.findById(addressId)
-                .orElseThrow(() -> new RuntimeException("Address not found"));
+    public AddressDTO updateAddress(AddressDTO addressDTO) {
+        Long userId = getAuthenticatedUserId();
+        UserEntity user = userDAO.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
-        if (!entity.getUser().getUserId().equals(userId)) {
-            throw new RuntimeException("Unauthorized delete attempt");
+        AddressEntity address = user.getAddress();
+
+        if (address == null) {
+            throw new RuntimeException("No address found for this user");
         }
 
-        addressDAO.delete(entity);
+        if(isShared(address)){
+            AddressEntity newAddress = AddressMapper.toEntity(addressDTO);
+            addressDAO.save(newAddress);
+            user.setAddress(newAddress);
+            userDAO.save(user);
+            return AddressMapper.toDTO(newAddress);
+        }
+
+        // if address is not shared
+        address.setMainLine(addressDTO.getMainLine());
+        address.setLocality(addressDTO.getLocality());
+        address.setLandmark(addressDTO.getLandmark());
+        address.setCity(addressDTO.getCity());
+        address.setState(addressDTO.getState());
+        address.setPostalCode(addressDTO.getPostalCode());
+        address.setCountry(addressDTO.getCountry());
+
+        addressDAO.save(address);
+        return AddressMapper.toDTO(address);
+
+    }
+
+    private boolean isShared(AddressEntity address) {
+        return userDAO.countByAddress(address) > 1;
     }
 
 }

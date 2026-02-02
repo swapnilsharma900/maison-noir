@@ -1,8 +1,15 @@
 package in.maisonnoir.backend.api.account.model.entity;
 
+import in.maisonnoir.backend.api.account.model.enums.AccountRole;
+
+import in.maisonnoir.backend.api.cart.model.entity.CartEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users", uniqueConstraints = {
@@ -19,19 +26,25 @@ public class UserEntity {
     private Long userId;
 
     @Column(nullable = false)
-    @NotBlank(message = "User Name is required")
-    private String name;
+    private String userName;
 
     @Column(nullable = false, unique = true)
-    @NotBlank(message = "User Email is required")
     private String email;
 
     @Column(nullable = false)
-    @NotBlank(message = "Password is required")
     private String password;
 
     @Column(nullable = false)
-    @NotBlank(message = "Role cannot be empty")
-    private String role; // e.g. ADMIN, CUSTOMER
+    @Enumerated(EnumType.STRING)
+    private AccountRole role; // ADMIN, CUSTOMER
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "address_id")
+    private AddressEntity address;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "cart_id")
+    private CartEntity cart;
 
 }
+

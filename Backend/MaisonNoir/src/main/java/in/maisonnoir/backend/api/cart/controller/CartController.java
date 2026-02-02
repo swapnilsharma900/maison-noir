@@ -1,56 +1,76 @@
 package in.maisonnoir.backend.api.cart.controller;
 
-import in.maisonnoir.backend.api.cart.model.dto.CartDTO;
-import in.maisonnoir.backend.api.cart.model.dto.CartDetailedDTO;
+import in.maisonnoir.backend.api.cart.model.dto.cartItem.CartItemAddDTO;
+import in.maisonnoir.backend.api.cart.model.dto.cartItem.CartItemUpdateDTO;
 import in.maisonnoir.backend.api.cart.service.CartService;
 
+import in.maisonnoir.backend.api.common.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users/{userId}/cart")
+@RequestMapping("api/cart")
 @RequiredArgsConstructor
 public class CartController {
 
     private final CartService cartService;
 
     @GetMapping
-    public ResponseEntity<CartDTO> getCart(@PathVariable Long userId) {
-        return ResponseEntity.ok(cartService.getCart(userId));
+    public ResponseEntity<ApiResponse> getCart() {
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        true,
+                        "Cart fetched successfully",
+                        cartService.getUserCart())
+        );
     }
 
     @PostMapping("/add")
-    public ResponseEntity<CartDTO> addItem(
-            @PathVariable Long userId,
-            @RequestParam String productId,
-            @RequestParam int quantity) {
-        return ResponseEntity.ok(cartService.addItem(userId, productId, quantity));
+    public ResponseEntity<ApiResponse> addItem( @Valid @RequestBody CartItemAddDTO cartItemAddDTO) {
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        true,
+                        "Item added to cart successfully",
+                        cartService.addCartItem(cartItemAddDTO))
+        );
     }
 
-    @DeleteMapping("/remove")
-    public ResponseEntity<CartDTO> removeItem(
-            @PathVariable Long userId,
-            @RequestParam String productId) {
-        return ResponseEntity.ok(cartService.removeItem(userId, productId));
+    @PutMapping("/items/{itemId}")
+    public ResponseEntity<ApiResponse> updateCartItem(
+            @PathVariable String itemId,
+            @Valid @RequestBody CartItemUpdateDTO cartItemUpdateDTO) {
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        true,
+                        "Cart item updated successfully",
+                        cartService.updateCartItem(cartItemUpdateDTO, itemId)
+                )
+        );
+    }
+
+    @DeleteMapping("/remove/{itemId}")
+    public ResponseEntity<ApiResponse> removeItem(
+            @PathVariable String itemId) {
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        true,
+                        "Item removed from cart successfully",
+                        cartService.removeCartItem(itemId))
+        );
     }
 
     @DeleteMapping("/clear")
-    public ResponseEntity<Void> clearCart(@PathVariable Long userId) {
-        cartService.clearCart(userId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/detailed")
-    public ResponseEntity<CartDetailedDTO> getDetailedCart(@PathVariable Long userId) {
-        return ResponseEntity.ok(cartService.getDetailedCart(userId));
+    public ResponseEntity<ApiResponse> clearCart() {
+        cartService.clearCart();
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        true,
+                        "Cart cleared successfully",
+                        null)
+        );
     }
 
 }

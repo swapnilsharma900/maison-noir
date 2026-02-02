@@ -1,20 +1,28 @@
 package in.maisonnoir.backend.api.order.service;
 
 
-import in.maisonnoir.backend.api.order.model.dto.OrderDTO;
+import in.maisonnoir.backend.api.order.model.dto.OrderResponseDTO;
+import in.maisonnoir.backend.api.order.model.dto.PlaceOrderDTO;
+import in.maisonnoir.backend.api.order.model.dto.UpdateOrderStatusDTO;
+import in.maisonnoir.backend.api.order.model.enums.OrderStatus;
 
 import java.util.List;
 
 public interface OrderService {
 
-    OrderDTO createOrder(OrderDTO orderDto);
+    // CUSTOMER SERVICES
+    OrderResponseDTO placeOrder(PlaceOrderDTO placeOrderDTO);
 
-    List<OrderDTO> getAllOrders();
+    OrderResponseDTO getOrderById(Long orderId);
 
-    OrderDTO getOrderById(Long id);
+    List<OrderResponseDTO> getMyOrders();
 
-    void cancelOrder(Long id);
+    OrderResponseDTO cancelOrder(Long orderId);
 
-    OrderDTO updateStatus(Long id, String status);
+    // ADMIN SERVICES
+    List<OrderResponseDTO> getAllOrders();
 
+    List<OrderResponseDTO> getOrdersByStatus(OrderStatus orderStatus);
+
+    OrderResponseDTO updateOrderStatus(Long orderId, UpdateOrderStatusDTO updateOrderStatusDTO);
 }

@@ -1,11 +1,30 @@
 package in.maisonnoir.backend.api.order.model.entity;
 
+import in.maisonnoir.backend.api.account.model.entity.AddressEntity;
 import in.maisonnoir.backend.api.order.model.enums.OrderStatus;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import lombok.*;
+import in.maisonnoir.backend.api.order.model.enums.PaymentStatus;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Version;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,34 +32,73 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+        @Index(name = "idx_order_user_id", columnList = "user_id"),
+        @Index(name = "idx_order_status", columnList = "order_status")
+})
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class OrderEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long orderId;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Order Number is required")
-    private String orderNumber;
+    @Column(nullable = false, name = "user_id")
+    private Long userId;
 
-    @Column(nullable = false)
-    private LocalDateTime placedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "address_id", nullable = false)
+    private AddressEntity shippingAddress;
 
-    @Column(nullable = false)
-    @NotNull(message = "Amount is required")
-    @Positive(message = "Amount must be positive")
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "order_item_ids", joinColumns = @JoinColumn(name = "order_id"))
+    @Column(name = "item_id")
+    @Builder.Default
+    private List<String> orderItemIds = new ArrayList<>();
+
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Status is required")
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    @Column(nullable = false, name = "order_status")
+    @Builder.Default
+    private OrderStatus orderStatus = OrderStatus.PENDING;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItemEntity> items = new ArrayList<>();
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+
+    @Column(nullable = false)
+    private String paymentMethod; // COD, CARD, UPI, etc.
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
+    @Version
+    private Long version; // Optimistic locking
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // Helper method to check if order can be cancelled
+    public boolean isCancellable() {
+        return orderStatus != OrderStatus.SHIPPED
+                && orderStatus != OrderStatus.DELIVERED
+                && orderStatus != OrderStatus.CANCELLED;
+    }
 }

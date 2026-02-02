@@ -1,13 +1,17 @@
 package in.maisonnoir.backend.api.cart.service;
 
-import in.maisonnoir.backend.api.cart.model.dto.CartDTO;
-import in.maisonnoir.backend.api.cart.model.dto.CartDetailedDTO;
+import in.maisonnoir.backend.api.cart.model.dto.cartItem.CartItemAddDTO;
+import in.maisonnoir.backend.api.cart.model.dto.cartItem.CartItemUpdateDTO;
+import in.maisonnoir.backend.api.cart.model.dto.cart.CartResponseDTO;
 
 public interface CartService {
-    CartDTO getCart(Long userId);
-    CartDetailedDTO getDetailedCart(Long userId);
-    CartDTO addItem(Long userId, String productId, int quantity);
-    CartDTO removeItem(Long userId, String productId);
-    void clearCart(Long userId);
+    // for cart
+    CartResponseDTO getUserCart();
+    void deleteUserCart(Long cartId); // should only be called by delete user method
+    void clearCart();
 
+    // for cart item
+    CartResponseDTO addCartItem(CartItemAddDTO cartItemAddDTO);
+    CartResponseDTO updateCartItem(CartItemUpdateDTO cartItemUpdateDTO, String itemId);
+    CartResponseDTO removeCartItem(String itemId);
 }
