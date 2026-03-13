@@ -5,19 +5,18 @@ import in.maisonnoir.backend.api.account.model.entity.UserEntity;
 import in.maisonnoir.backend.api.account.repository.AddressDAO;
 import in.maisonnoir.backend.api.account.repository.UserDAO;
 import in.maisonnoir.backend.api.cart.model.entity.CartEntity;
-import in.maisonnoir.backend.api.cart.model.entity.CartItemEntity;
-import in.maisonnoir.backend.api.cart.repository.CartItemDAO;
 import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
+import in.maisonnoir.backend.api.common.item.model.entity.ItemEntity;
+import in.maisonnoir.backend.api.common.item.repository.ItemDAO;
 import in.maisonnoir.backend.api.order.model.dto.OrderResponseDTO;
 import in.maisonnoir.backend.api.order.model.dto.PlaceOrderDTO;
 import in.maisonnoir.backend.api.order.model.dto.UpdateOrderStatusDTO;
-import in.maisonnoir.backend.api.order.model.entity.OrderItemEntity;
 import in.maisonnoir.backend.api.order.model.enums.OrderStatus;
 import in.maisonnoir.backend.api.order.model.entity.OrderEntity;
 import in.maisonnoir.backend.api.order.repository.OrderDAO;
-import in.maisonnoir.backend.api.order.repository.OrderItemDAO;
 import in.maisonnoir.backend.api.order.service.OrderService;
 import in.maisonnoir.backend.api.order.mapper.OrderMapper;
+import in.maisonnoir.backend.api.common.item.mapper.OrderItemMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +25,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -38,10 +35,9 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderDAO orderDAO;
-    private final OrderItemDAO orderItemDAO;
+    private final ItemDAO itemDAO;
     private final UserDAO userDAO;
     private final AddressDAO addressDAO;
-    private final CartItemDAO cartItemDAO;
 
     private UserEntity getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -62,7 +58,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         // Validate cart has items
-        List<CartItemEntity> cartItems = cartItemDAO.findByCartId(cart.getCartId());
+        List<ItemEntity> cartItems = itemDAO.findByCartId(cart.getCartId());
         if (cartItems.isEmpty()) {
             throw new RuntimeException("Cannot place order with empty cart");
         }
@@ -78,28 +74,23 @@ public class OrderServiceImpl implements OrderService {
 
         // Create order entity
         OrderEntity order = OrderMapper.toEntity(placeOrderDTO, currentUser.getUserId(), address, cart);
-
         order = orderDAO.save(order);
 
-        // Create order items from cart items (snapshot)
-        List<OrderItemEntity> orderItems = new ArrayList<>();
-        for (CartItemEntity cartItem : cartItems) {
-            OrderItemEntity orderItem = OrderMapper.toOrderItemEntity(cartItem, order.getOrderId());
-
-            orderItem = orderItemDAO.save(orderItem);
-            order.getOrderItemIds().add(orderItem.getId());
-            orderItems.add(orderItem);
+        // Transition cart items → order items (freeze price, reassign ownership)
+        for (ItemEntity item : cartItems) {
+            OrderItemMapper.transitionToOrderItem(item, order.getOrderId());
+            itemDAO.save(item);
+            order.getItemIds().add(item.getItemId());
         }
 
         orderDAO.save(order); // Update with order item IDs
 
         // Clear cart after order placement
-        cartItemDAO.deleteByCartId(cart.getCartId());
-        cart.getCartItemIds().clear();
+        cart.getItemIds().clear();
         cart.setTotalAmount(BigDecimal.ZERO);
 
         log.info("Order placed successfully: {} for user: {}", order.getOrderId(), currentUser.getUserId());
-        return OrderMapper.toResponse(order, orderItems);
+        return OrderMapper.toResponse(order, cartItems);
     }
 
     @Override
@@ -114,7 +105,7 @@ public class OrderServiceImpl implements OrderService {
             throw new ResourceNotFoundException("Order", "id", orderId);
         }
 
-        List<OrderItemEntity> orderItems = orderItemDAO.findByOrderId(order.getOrderId());
+        List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
 
         log.info("Fetched order: {} for user: {}", orderId, currentUser.getUserId());
         return OrderMapper.toResponse(order, orderItems);
@@ -129,7 +120,7 @@ public class OrderServiceImpl implements OrderService {
         log.info("Fetched {} orders for user: {}", orders.size(), currentUser.getUserId());
         return orders.stream()
                 .map(order -> {
-                    List<OrderItemEntity> orderItems = orderItemDAO.findByOrderId(order.getOrderId());
+                    List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
                     return OrderMapper.toResponse(order, orderItems);
                 })
                 .collect(Collectors.toList());
@@ -155,7 +146,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatus.CANCELLED);
         orderDAO.save(order);
 
-        List<OrderItemEntity> orderItems = orderItemDAO.findByOrderId(order.getOrderId());
+        List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
 
         log.info("Order cancelled: {} by user: {}", orderId, currentUser.getUserId());
         return OrderMapper.toResponse(order, orderItems);
@@ -170,7 +161,7 @@ public class OrderServiceImpl implements OrderService {
         log.info("Admin fetched all orders: {} items", orders.size());
         return orders.stream()
                 .map(order -> {
-                    List<OrderItemEntity> orderItems = orderItemDAO.findByOrderId(order.getOrderId());
+                    List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
                     return OrderMapper.toResponse(order, orderItems);
                 })
                 .collect(Collectors.toList());
@@ -183,7 +174,7 @@ public class OrderServiceImpl implements OrderService {
         log.info("Admin fetched orders by status {}: {} items", orderStatus, orders.size());
         return orders.stream()
                 .map(order -> {
-                    List<OrderItemEntity> orderItems = orderItemDAO.findByOrderId(order.getOrderId());
+                    List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
                     return OrderMapper.toResponse(order, orderItems);
                 })
                 .collect(Collectors.toList());
@@ -197,7 +188,7 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(updateOrderStatusDTO.getOrderStatus());
         orderDAO.save(order);
 
-        List<OrderItemEntity> orderItems = orderItemDAO.findByOrderId(order.getOrderId());
+        List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
 
         log.info("Admin updated order status: {} to {}", orderId, updateOrderStatusDTO.getOrderStatus());
         return OrderMapper.toResponse(order, orderItems);

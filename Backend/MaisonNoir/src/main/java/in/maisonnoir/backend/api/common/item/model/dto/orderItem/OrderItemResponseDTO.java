@@ -1,4 +1,4 @@
-package in.maisonnoir.backend.api.cart.model.dto.cartItem;
+package in.maisonnoir.backend.api.common.item.model.dto.orderItem;
 
 import in.maisonnoir.backend.api.product.model.dto.ProductResponseDTO;
 import lombok.AllArgsConstructor;
@@ -14,11 +14,16 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CartItemResponseDTO {
+public class OrderItemResponseDTO {
     private String itemId;
+
     private ProductResponseDTO product;
+
+    private String selectedSize;
+
     private Integer quantity;
-    private BigDecimal totalPrice;
+
+    private BigDecimal priceAtOrder;
+
+    private BigDecimal itemTotal; // priceAtOrder × quantity
 }
-
-

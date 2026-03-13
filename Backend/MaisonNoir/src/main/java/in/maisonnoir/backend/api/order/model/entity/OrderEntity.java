@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "orders", indexes = {
+@Table(name = "order_table", indexes = {
         @Index(name = "idx_order_user_id", columnList = "user_id"),
         @Index(name = "idx_order_status", columnList = "order_status")
 })
@@ -55,12 +55,12 @@ public class OrderEntity {
     private AddressEntity shippingAddress;
 
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "order_item_ids", joinColumns = @JoinColumn(name = "order_id"))
+    @CollectionTable(name = "item-collection", joinColumns = @JoinColumn(name = "order_id"))
     @Column(name = "item_id")
     @Builder.Default
-    private List<String> orderItemIds = new ArrayList<>();
+    private List<String> itemIds = new ArrayList<>();
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2, name = "total_amount")
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
@@ -69,11 +69,11 @@ public class OrderEntity {
     private OrderStatus orderStatus = OrderStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, name = "payment_status")
     @Builder.Default
     private PaymentStatus paymentStatus = PaymentStatus.PENDING;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "payment_method")
     private String paymentMethod; // COD, CARD, UPI, etc.
 
     @Column(nullable = false, updatable = false)

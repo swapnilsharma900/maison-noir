@@ -1,6 +1,6 @@
-package in.maisonnoir.backend.api.cart.model.dto.cart;
+package in.maisonnoir.backend.api.cart.model.dto;
 
-import in.maisonnoir.backend.api.cart.model.dto.cartItem.CartItemResponseDTO;
+import in.maisonnoir.backend.api.common.item.model.dto.cartItem.CartItemResponseDTO;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;

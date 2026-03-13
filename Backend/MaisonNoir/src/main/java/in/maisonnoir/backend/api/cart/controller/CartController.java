@@ -1,7 +1,7 @@
 package in.maisonnoir.backend.api.cart.controller;
 
-import in.maisonnoir.backend.api.cart.model.dto.cartItem.CartItemAddDTO;
-import in.maisonnoir.backend.api.cart.model.dto.cartItem.CartItemUpdateDTO;
+import in.maisonnoir.backend.api.common.item.model.dto.cartItem.CartItemAddDTO;
+import in.maisonnoir.backend.api.common.item.model.dto.cartItem.CartItemUpdateDTO;
 import in.maisonnoir.backend.api.cart.service.CartService;
 
 import in.maisonnoir.backend.api.common.response.ApiResponse;

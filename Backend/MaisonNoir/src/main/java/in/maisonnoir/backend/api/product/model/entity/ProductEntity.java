@@ -1,5 +1,6 @@
 package in.maisonnoir.backend.api.product.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -11,13 +12,14 @@ import lombok.Builder;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "products")
+@Document(collection = "product_collection")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,30 +27,31 @@ import java.util.List;
 @Builder
 public class ProductEntity {
     @Id
-    private String id;
+    @Field("_id")
+    private String productId;
 
     @Indexed
-    private String name;
+    private String productName;
 
     @Size(max = 1000, message = "Product Description should not be more than 1000 characters")
-    private String description;
+    private String productDescription;
 
     @Positive(message = "Price must be positive")
-    private BigDecimal price;
+    private BigDecimal productPrice;
 
-    private String image;
+    private String productImage;
 
     @Indexed
-    private String category;
+    private String productCategory;
 
     @Builder.Default
-    private List<ProductVariant> variants = new ArrayList<>(); // Size variations
+    private List<ProductVariant> productVariants = new ArrayList<>(); // Size variations
 
-    private Integer stock; // Total available stock across all variants
+    private Integer productStock; // Total available stock across all variants
 
-    private Double averageRating; // Calculated average rating
+    private Double productRating; // Calculated average rating
 
-    private Integer totalReviews; // Total number of reviews
+    private Integer productReviews; // Total number of reviews
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
@@ -61,8 +64,8 @@ public class ProductEntity {
     @AllArgsConstructor
     @Builder
     public static class ProductVariant {
-        private String size; // e.g., "S", "M", "L", "XL"
-        private Integer stock; // Stock for this specific size
-        private BigDecimal priceAdjustment; // Additional price for this size (optional, default 0)
+        private String variantSize; // e.g., "S", "M", "L", "XL"
+        private Integer variantStock; // Stock for this specific size
+        private BigDecimal variantPriceAdjustment; // Additional price for this size (optional, default 0)
     }
 }

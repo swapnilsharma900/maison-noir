@@ -11,11 +11,12 @@ import java.util.Optional;
 @Repository
 public interface ProductDAO extends MongoRepository<ProductEntity, String> {
 
-    @NotNull Optional<ProductEntity> findById(@NotNull String id);
+    @NotNull
+    Optional<ProductEntity> findById(@NotNull String id);
 
-    List<ProductEntity> findByCategory(String category);
+    List<ProductEntity> findByProductCategory(String productCategory);
 
-    List<ProductEntity> findByNameContainingIgnoreCase(String name);
+    List<ProductEntity> findByProductNameContainingIgnoreCase(String productName);
 
-    boolean existsByName(String name);
+    boolean existsByProductName(String productName);
 }

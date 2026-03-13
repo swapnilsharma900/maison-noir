@@ -5,6 +5,7 @@ import in.maisonnoir.backend.api.account.model.dto.user.UserResponseDTO;
 import in.maisonnoir.backend.api.account.model.dto.user.UserUpdateDTO;
 import in.maisonnoir.backend.api.common.response.ApiResponse;
 import in.maisonnoir.backend.api.account.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
+@Tag(name= "User Access Point", description= "API Gateways for User Controller")
 public class UserController {
 
     private final UserService userService;
@@ -42,7 +44,6 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<ApiResponse> getUser() {
         UserResponseDTO user = userService.getUser(); // service resolves from context
-        System.out.println("\n\n\n user: "+user+"\n\n\n");
         return ResponseEntity.ok(
                 new ApiResponse(true, "Fetched current user", user)
         );

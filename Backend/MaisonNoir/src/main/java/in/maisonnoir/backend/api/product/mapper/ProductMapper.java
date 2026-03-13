@@ -16,17 +16,17 @@ public class ProductMapper {
         if(dto == null) return null;
 
         return ProductEntity.builder()
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .image(dto.getImage())
-                .category(dto.getCategory())
-                .variants(dto.getVariants().stream()
+                .productName(dto.getName())
+                .productDescription(dto.getDescription())
+                .productPrice(dto.getPrice())
+                .productImage(dto.getImage())
+                .productCategory(dto.getCategory())
+                .productVariants(dto.getVariants().stream()
                         .map(ProductMapper::toVariantEntity)
                         .collect(Collectors.toList()))
-                .stock(dto.getStock())
-                .averageRating(0.0) // Default for new products
-                .totalReviews(0) // Default for new products
+                .productStock(dto.getStock())
+                .productRating(0.0) // Default for new products
+                .productReviews(0) // Default for new products
                 .build();
     }
 
@@ -34,51 +34,49 @@ public class ProductMapper {
     public static ProductResponseDTO toResponse(ProductEntity entity) {
         if (entity == null) return null;
 
-        List<ProductEntity.ProductVariant> variants = Optional.ofNullable(entity.getVariants())
+        List<ProductEntity.ProductVariant> variants = Optional.ofNullable(entity.getProductVariants())
                 .orElse(Collections.emptyList());
 
-
-
         return ProductResponseDTO.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .description(entity.getDescription())
-                .price(entity.getPrice())
-                .image(entity.getImage())
-                .category(entity.getCategory())
+                .id(entity.getProductId())
+                .name(entity.getProductName())
+                .description(entity.getProductDescription())
+                .price(entity.getProductPrice())
+                .image(entity.getProductImage())
+                .category(entity.getProductCategory())
                 .variants(variants.stream()
                         .map(ProductMapper::toVariantDTO)
                         .collect(Collectors.toList()))
-                .stock(entity.getStock())
-                .averageRating(entity.getAverageRating())
-                .totalReviews(entity.getTotalReviews())
+                .stock(entity.getProductStock())
+                .averageRating(entity.getProductRating())
+                .totalReviews(entity.getProductReviews())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
     }
 
     public static void applyUpdate(ProductRequestDTO dto, ProductEntity entity) {
         if (dto.getName() != null && !dto.getName().isBlank()) {
-            entity.setName(dto.getName());
+            entity.setProductName(dto.getName());
         }
         if (dto.getDescription() != null && !dto.getDescription().isBlank()) {
-            entity.setDescription(dto.getDescription());
+            entity.setProductDescription(dto.getDescription());
         }
         if (dto.getPrice() != null) {
-            entity.setPrice(dto.getPrice());
+            entity.setProductPrice(dto.getPrice());
         }
         if (dto.getImage() != null && !dto.getImage().isBlank()) {
-            entity.setImage(dto.getImage());
+            entity.setProductImage(dto.getImage());
         }
         if (dto.getCategory() != null && !dto.getCategory().isBlank()) {
-            entity.setCategory(dto.getCategory());
+            entity.setProductCategory(dto.getCategory());
         }
         if (dto.getVariants() != null && !dto.getVariants().isEmpty()) {
-            entity.setVariants(dto.getVariants().stream()
+            entity.setProductVariants(dto.getVariants().stream()
                     .map(ProductMapper::toVariantEntity)
                     .collect(Collectors.toList()));
         }
         if (dto.getStock() != null) {
-            entity.setStock(dto.getStock());
+            entity.setProductStock(dto.getStock());
         }
     }
 
@@ -86,9 +84,9 @@ public class ProductMapper {
         if (dto == null) return null;
 
         return ProductEntity.ProductVariant.builder()
-                .size(dto.getSize())
-                .stock(dto.getStock())
-                .priceAdjustment(dto.getPriceAdjustment() != null ?
+                .variantSize(dto.getSize())
+                .variantStock(dto.getStock())
+                .variantPriceAdjustment(dto.getPriceAdjustment() != null ?
                         dto.getPriceAdjustment() : BigDecimal.ZERO)
                 .build();
     }
@@ -97,10 +95,10 @@ public class ProductMapper {
         if (variant == null) return null;
 
         return VariantDTO.builder()
-                .size(variant.getSize())
-                .stock(variant.getStock())
-                .priceAdjustment(variant.getPriceAdjustment() != null ?
-                        variant.getPriceAdjustment() : BigDecimal.ZERO)
+                .size(variant.getVariantSize())
+                .stock(variant.getVariantStock())
+                .priceAdjustment(variant.getVariantPriceAdjustment() != null ?
+                        variant.getVariantPriceAdjustment() : BigDecimal.ZERO)
                 .build();
     }
 }

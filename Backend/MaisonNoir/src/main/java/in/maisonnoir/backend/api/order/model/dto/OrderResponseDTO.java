@@ -1,6 +1,7 @@
 package in.maisonnoir.backend.api.order.model.dto;
 
 import in.maisonnoir.backend.api.account.model.dto.address.AddressDTO;
+import in.maisonnoir.backend.api.common.item.model.dto.orderItem.OrderItemResponseDTO;
 import in.maisonnoir.backend.api.order.model.enums.OrderStatus;
 import in.maisonnoir.backend.api.order.model.enums.PaymentStatus;
 import lombok.AllArgsConstructor;

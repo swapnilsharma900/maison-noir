@@ -27,19 +27,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) {
         // Check if product with same name already exists
-        if (productDAO.existsByName(productRequestDTO.getName())) {
+        /* allow products with same name
+        if (productDAO.existsByProductName(productRequestDTO.getName())) {
             throw new DuplicateResourceException(
                     "Product",
                     "name",
                     productRequestDTO.getName(),
-                    "Product with this name already exists"
-            );
+                    "Product with this name already exists");
         }
+        */
 
         ProductEntity entity = ProductMapper.toEntity(productRequestDTO);
         ProductEntity saved = productDAO.save(entity);
 
-        log.info("Product created with id: {}", saved.getId());
+        log.info("Product created with itemId: {}", saved.getProductId());
         return ProductMapper.toResponse(saved);
     }
 
@@ -50,20 +51,19 @@ public class ProductServiceImpl implements ProductService {
 
         // Check if updating name to an existing product name
         if (productRequestDTO.getName() != null
-                && !productRequestDTO.getName().equals(entity.getName())
-                && productDAO.existsByName(productRequestDTO.getName())) {
+                && !productRequestDTO.getName().equals(entity.getProductName())
+                && productDAO.existsByProductName(productRequestDTO.getName())) {
             throw new DuplicateResourceException(
                     "Product",
                     "name",
                     productRequestDTO.getName(),
-                    "Product with this name already exists"
-            );
+                    "Product with this name already exists");
         }
 
         ProductMapper.applyUpdate(productRequestDTO, entity);
         ProductEntity updated = productDAO.save(entity);
 
-        log.info("Product updated with id: {}", productId);
+        log.info("Product updated with itemId: {}", productId);
         return ProductMapper.toResponse(updated);
     }
 
@@ -74,7 +74,7 @@ public class ProductServiceImpl implements ProductService {
 
         productDAO.deleteById(productId);
 
-        log.info("Product deleted with id: {}", productId);
+        log.info("Product deleted with itemId: {}", productId);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity entity = productDAO.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
-        log.info("Fetched product with id: {}", productId);
+        log.info("Fetched product with itemId: {}", productId);
         return ProductMapper.toResponse(entity);
     }
 
@@ -98,7 +98,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponseDTO> getProductsByCategory(String category) {
-        List<ProductEntity> products = productDAO.findByCategory(category);
+        List<ProductEntity> products = productDAO.findByProductCategory(category);
 
         log.info("Fetched products by category '{}': {} items", category, products.size());
         return products.stream()
@@ -108,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponseDTO> searchProductsByName(String name) {
-        List<ProductEntity> products = productDAO.findByNameContainingIgnoreCase(name);
+        List<ProductEntity> products = productDAO.findByProductNameContainingIgnoreCase(name);
 
         log.info("Searched products by name '{}': {} items found", name, products.size());
         return products.stream()

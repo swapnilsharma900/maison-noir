@@ -52,7 +52,7 @@ public class AddressServiceImpl implements AddressService {
         if (user.getAddress() != null) {
             throw new DuplicateResourceException(
                     "Address",
-                    "user id",
+                    "user itemId",
                     userId,
                     "Try updating address with new address"
             );

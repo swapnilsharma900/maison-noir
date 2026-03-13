@@ -49,22 +49,22 @@ public class UserServiceImpl implements UserService {
         if (userDAO.findByEmail(userDTO.getEmail()).isPresent()) {
             throw new DuplicateResourceException(
                     "User", "email", userDTO.getEmail(),
-                    "A user already exists with this email"
-            );
+                    "A user already exists with this email");
         }
 
         UserEntity entity = UserMapper.toEntity(userDTO);
 
         // Hash password before saving
         entity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        System.out.println("\n\nhashed password for admin123: "+new BCryptPasswordEncoder().encode("admin123")+"\n\n");
+        System.out.println(
+                "\n\nhashed password for admin123: " + new BCryptPasswordEncoder().encode("admin123") + "\n\n");
 
         // Default role to CUSTOMER
         entity.setRole(AccountRole.CUSTOMER);
 
         // Create empty cart for new user
         CartEntity cart = CartEntity.builder()
-                .cartItemIds(new ArrayList<>())
+                .itemIds(new ArrayList<>())
                 .totalAmount(BigDecimal.ZERO)
                 .build();
         cart = cartDAO.save(cart);
@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService {
         }
 
         UserEntity updated = userDAO.save(currentUser);
-        return (changed)? UserMapper.toResponse(updated) : null;
+        return (changed) ? UserMapper.toResponse(updated) : null;
     }
 
     @Override

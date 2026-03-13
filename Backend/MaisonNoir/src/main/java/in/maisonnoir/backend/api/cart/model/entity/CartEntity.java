@@ -1,15 +1,6 @@
 package in.maisonnoir.backend.api.cart.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -22,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "carts")
+@Table(name = "cart_table")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,10 +25,10 @@ public class CartEntity {
     private Long cartId;
 
     @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "cart_items", joinColumns = @JoinColumn(name = "cart_id"))
+    @CollectionTable(name = "item_collection", joinColumns = @JoinColumn(name = "cart_id"))
     @Column(name = "item_id")
     @Builder.Default
-    private List<String> cartItemIds = new ArrayList<>();
+    private List<String> itemIds = new ArrayList<>();
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
@@ -45,5 +36,10 @@ public class CartEntity {
     @Column(nullable = false, precision = 10, scale = 2)
     @Builder.Default
     private BigDecimal totalAmount = BigDecimal.ZERO;
-}
 
+    @PrePersist
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+}
