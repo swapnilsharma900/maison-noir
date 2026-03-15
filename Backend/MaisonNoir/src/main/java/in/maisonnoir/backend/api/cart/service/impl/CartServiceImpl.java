@@ -48,10 +48,13 @@ public class CartServiceImpl implements CartService {
      * This ensures that cart items always reflect the latest product pricing.
      */
     private List<ItemEntity> refreshCartItemPrices(List<ItemEntity> cartItems) {
-        boolean updated = false;
         for (ItemEntity item : cartItems) {
-            productDAO.findById(item.getProductId()).ifPresent(latestProduct -> {
-                item.setProductSnapshot(latestProduct);
+            productDAO.findById(item.getProductSnapshot().getProductId()).ifPresent(latestProduct -> {
+                // Preserve the selected size from the existing snapshot
+                String selectedSize = item.getProductSnapshot() != null
+                        ? item.getProductSnapshot().getSelectedSize() : null;
+                item.setProductSnapshot(
+                        CartItemMapper.buildSnapshot(latestProduct, selectedSize));
             });
         }
         // Batch save all refreshed items
@@ -146,24 +149,26 @@ public class CartServiceImpl implements CartService {
         ProductEntity product = productDAO.findById(dto.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", dto.getProductId()));
 
-        // Check if item already exists in cart
+        // Check if item already exists in cart with the exact same selected size
         List<ItemEntity> itemList = itemDAO.findByCartId(cart.getCartId());
         ItemEntity existingItem = itemList.stream()
-                .filter(item -> item.getProductId().equals(dto.getProductId()))
+                .filter(item -> item.getProductSnapshot().getProductId().equals(dto.getProductId()) &&
+                         java.util.Objects.equals(item.getProductSnapshot().getSelectedSize(), dto.getSelectedSize()))
                 .findFirst()
                 .orElse(null);
 
         if (existingItem != null) {
-            // Update quantity of existing item
-            existingItem.setQuantity(existingItem.getQuantity() + dto.getQuantity());
-            existingItem.setProductSnapshot(product); // refresh snapshot
-            itemDAO.save(existingItem);
-        } else {
-            // Create new cart item
-            ItemEntity newItem = CartItemMapper.toEntity(dto, cart.getCartId(), product);
-            newItem = itemDAO.save(newItem);
-            cart.getItemIds().add(newItem.getItemId());
+            CartItemUpdateDTO updateDTO = CartItemUpdateDTO.builder()
+                    .quantity(existingItem.getQuantity() + dto.getQuantity())
+                    .build();
+            return updateCartItem(updateDTO, existingItem.getItemId());
         }
+
+        // Create new cart item
+        ItemEntity newItem = CartItemMapper.toEntity(dto, cart.getCartId(), product);
+        System.out.println("\n item size "+newItem.getProductSnapshot().getSelectedSize()+"\n\n\n");
+        newItem = itemDAO.save(newItem);
+        cart.getItemIds().add(newItem.getItemId());
 
         // Update cart totals
         List<ItemEntity> updatedItems = itemDAO.findByCartId(cart.getCartId());

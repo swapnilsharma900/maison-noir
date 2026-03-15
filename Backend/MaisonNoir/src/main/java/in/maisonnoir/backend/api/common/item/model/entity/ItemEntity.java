@@ -1,10 +1,8 @@
 package in.maisonnoir.backend.api.common.item.model.entity;
 
-import in.maisonnoir.backend.api.product.model.entity.ProductEntity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +25,7 @@ import java.math.BigDecimal;
  *
  * <p>
  * <b>Order context</b>: {@code orderId} is set, {@code cartId} is null.
- * {@code priceAtOrder} is frozen at checkout and never changes.
+ * {@code totalPrice} (unitPrice × quantity) is frozen at checkout and never changes.
  * </p>
  */
 @Document(collection = "item_collection")
@@ -50,26 +48,38 @@ public class ItemEntity {
     @Indexed
     private Long orderId;
 
-    /** Master product ID used to fetch live pricing in the cart context. */
-    @NotNull(message = "Product ID is required")
-    private String productId;
 
-    /** Embedded snapshot of the product for display purposes. */
-    private ProductEntity productSnapshot;
-
-    /** Selected variant size (e.g. "S", "M", "L", "XL"). */
-    private String selectedSize;
+    /** Lightweight snapshot of essential product details for display. */
+    private ProductSnapshot productSnapshot;
 
     @Min(value = 1, message = "Quantity must be at least 1")
     @Max(value = 10, message = "Quantity must be at most 10")
     private Integer quantity;
 
     /**
-     * Frozen price at the time the order was placed.
+     * Frozen total price at the time the order was placed (unitPrice × quantity).
      * <p>
      * Null while the item is in the cart (price is resolved dynamically).
      * </p>
      */
-    @Positive(message = "Price at order must be positive")
-    private BigDecimal priceAtOrder;
+    @Positive(message = "Total price must be positive")
+    private BigDecimal totalPrice;
+
+    /**
+     * Embedded lightweight snapshot containing only essential product details
+     * needed for display (name, image, category, selected size).
+     */
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ProductSnapshot {
+        private String productId;
+        private String productName;
+        private String productImage;
+        private String productCategory;
+        private String selectedSize;
+        private BigDecimal productPrice;
+    }
 }

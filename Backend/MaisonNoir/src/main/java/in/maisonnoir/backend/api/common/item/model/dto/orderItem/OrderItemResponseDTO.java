@@ -1,6 +1,6 @@
 package in.maisonnoir.backend.api.common.item.model.dto.orderItem;
 
-import in.maisonnoir.backend.api.product.model.dto.ProductResponseDTO;
+import in.maisonnoir.backend.api.common.item.model.dto.ProductSnapshotDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,13 +17,9 @@ import java.math.BigDecimal;
 public class OrderItemResponseDTO {
     private String itemId;
 
-    private ProductResponseDTO product;
-
-    private String selectedSize;
+    private ProductSnapshotDTO product;
 
     private Integer quantity;
 
-    private BigDecimal priceAtOrder;
-
-    private BigDecimal itemTotal; // priceAtOrder × quantity
+    private BigDecimal totalPrice; // unitPrice × quantity, frozen at checkout
 }

@@ -21,6 +21,10 @@ public class CartItemAddDTO {
     @SafeText
     private String productId;
 
+    @NotBlank(message = "Selected size is required")
+    @SafeText
+    private String selectedSize;
+
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
