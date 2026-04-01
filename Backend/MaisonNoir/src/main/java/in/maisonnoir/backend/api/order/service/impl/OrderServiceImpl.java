@@ -2,7 +2,6 @@ package in.maisonnoir.backend.api.order.service.impl;
 
 import in.maisonnoir.backend.api.account.model.entity.AddressEntity;
 import in.maisonnoir.backend.api.account.model.entity.UserEntity;
-import in.maisonnoir.backend.api.account.repository.AddressDAO;
 import in.maisonnoir.backend.api.account.repository.UserDAO;
 import in.maisonnoir.backend.api.cart.model.entity.CartEntity;
 import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
@@ -37,7 +36,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderDAO orderDAO;
     private final ItemDAO itemDAO;
     private final UserDAO userDAO;
-    private final AddressDAO addressDAO;
 
     private UserEntity getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -63,13 +61,10 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Cannot place order with empty cart");
         }
 
-        // Validate address belongs to user
-        AddressEntity address = addressDAO.findById(placeOrderDTO.getAddressId())
-                .orElseThrow(() -> new ResourceNotFoundException("Address", "id", placeOrderDTO.getAddressId()));
-
-        // Verify address belongs to current user (security check)
-        if (!address.equals(currentUser.getAddress())) {
-            throw new ResourceNotFoundException("Address", "id", placeOrderDTO.getAddressId());
+        // Fetch address from user (one-to-one relationship)
+        AddressEntity address = currentUser.getAddress();
+        if (address == null) {
+            throw new ResourceNotFoundException("Address", "user", currentUser.getUserId());
         }
 
         // Create order entity
