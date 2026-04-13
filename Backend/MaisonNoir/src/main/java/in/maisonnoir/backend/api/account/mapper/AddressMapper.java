@@ -8,12 +8,12 @@ public class AddressMapper {
         if (entity == null) return null;
 
         return AddressDTO.builder()
-                .mainLine(entity.getMainLine())
-                .locality(entity.getLocality())
+                .lineOne(entity.getLineOne())
+                .lineTwo(entity.getLineTwo())
                 .landmark(entity.getLandmark())
                 .city(entity.getCity())
                 .state(entity.getState())
-                .postalCode(entity.getPostalCode())
+                .pincode(entity.getPincode())
                 .country(entity.getCountry())
                 .build();
     }
@@ -22,12 +22,12 @@ public class AddressMapper {
         if (dto == null) return null;
 
         return AddressEntity.builder()
-                .mainLine(dto.getMainLine())
-                .locality(dto.getLocality())
+                .lineOne(dto.getLineOne())
+                .lineTwo(dto.getLineTwo())
                 .landmark(dto.getLandmark())
                 .city(dto.getCity())
                 .state(dto.getState())
-                .postalCode(dto.getPostalCode())
+                .pincode(dto.getPincode())
                 .country(dto.getCountry())
                 .build();
     }

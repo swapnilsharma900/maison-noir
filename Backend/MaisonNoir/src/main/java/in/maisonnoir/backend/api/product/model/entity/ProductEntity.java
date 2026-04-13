@@ -1,25 +1,24 @@
 package in.maisonnoir.backend.api.product.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Id;
-import jakarta.validation.constraints.Positive;
+import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@Document(collection = "product_collection")
+@Document(collection = "products")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,45 +26,39 @@ import java.util.List;
 @Builder
 public class ProductEntity {
     @Id
-    @Field("_id")
-    private String productId;
+    private String id;
 
     @Indexed
-    private String productName;
+    private String name;
 
-    @Size(max = 1000, message = "Product Description should not be more than 1000 characters")
-    private String productDescription;
-
-    @Positive(message = "Price must be positive")
-    private BigDecimal productPrice;
-
-    private String productImage;
+    @Size(max = 1000, message = "Product description should not be more than 1000 characters")
+    private String description;
 
     @Indexed
-    private String productCategory;
+    private String category;
 
     @Builder.Default
-    private List<ProductVariant> productVariants = new ArrayList<>(); // Size variations
+    private List<String> images = new ArrayList<>();
 
-    private Integer productStock; // Total available stock across all variants
+    /**
+     * Generic variant options metadata describing available axes of variation
+     * (e.g. [{label: "Size", values: ["S","M","L"]}, {label: "Color", values: ["Red","Blue"]}]).
+     * Actual purchasable SKUs live in the {@code items} collection as ProductVariantEntity.
+     */
+    @Builder.Default
+    private List<Map<String, Object>> variants = new ArrayList<>();
 
-    private Double productRating; // Calculated average rating
+    /**
+     * Flexible key-value attributes (e.g. material, care instructions, fit type).
+     */
+    @Builder.Default
+    private Map<String, Object> attributes = new HashMap<>();
 
-    private Integer productReviews; // Total number of reviews
+    @Builder.Default
+    @Field("is_active")
+    private Boolean isActive = true;
 
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
-
-    // Embedded class for product variants (sizes)
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class ProductVariant {
-        private String variantSize; // e.g., "S", "M", "L", "XL"
-        private Integer variantStock; // Stock for this specific size
-        private BigDecimal variantPriceAdjustment; // Additional price for this size (optional, default 0)
-    }
+    @CreatedDate
+    @Field("created_at")
+    private LocalDateTime createdAt;
 }

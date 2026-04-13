@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -22,19 +22,18 @@ public class ProductResponseDTO {
 
     private String description;
 
-    private BigDecimal price;
-
-    private String image;
-
     private String category;
 
-    private List<VariantDTO> variants;
+    private List<String> images;
 
-    private Integer stock;
+    private List<Map<String, Object>> variants;
 
-    private Double averageRating;
+    private Map<String, Object> attributes;
 
-    private Integer totalReviews;
+    private Boolean isActive;
 
-    private LocalDateTime updatedAt;
+    private LocalDateTime createdAt;
+
+    /** The purchasable SKU variants associated with this product. */
+    private List<VariantItemDTO> variantItems;
 }

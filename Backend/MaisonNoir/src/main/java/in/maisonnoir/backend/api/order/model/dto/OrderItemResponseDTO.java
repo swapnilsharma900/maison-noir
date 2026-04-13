@@ -1,6 +1,5 @@
-package in.maisonnoir.backend.api.common.item.model.dto.orderItem;
+package in.maisonnoir.backend.api.order.model.dto;
 
-import in.maisonnoir.backend.api.common.item.model.dto.ProductSnapshotDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,11 +14,12 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class OrderItemResponseDTO {
-    private String itemId;
-
-    private ProductSnapshotDTO product;
-
+    private Long id;
+    private String variantId;
     private Integer quantity;
-
-    private BigDecimal totalPrice; // unitPrice × quantity, frozen at checkout
+    private String snapshotName;
+    private String snapshotImage;
+    private BigDecimal snapshotPrice;
+    private String variantLabel;
+    private String snapshotCategory;
 }

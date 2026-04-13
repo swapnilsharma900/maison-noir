@@ -9,7 +9,7 @@ import lombok.Setter;
 
 
 @Entity
-@Table(name = "address_table")
+@Table(name = "addresses")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,11 +20,14 @@ public class AddressEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String mainLine; // Flat No, House No
+    @Column(nullable = false, name = "user_id")
+    private Long userId;
 
     @Column(nullable = false)
-    private String locality; // Building, society, colony, street
+    private String lineOne; // Flat No, House No
+
+    @Column(nullable = false)
+    private String lineTwo; // Building, society, colony, street
 
     private String landmark;
 
@@ -35,9 +38,8 @@ public class AddressEntity {
     private String state;
 
     @Column(nullable = false)
-    private String postalCode;
+    private String pincode;
 
     @Column(nullable = false)
     private String country;
-
 }

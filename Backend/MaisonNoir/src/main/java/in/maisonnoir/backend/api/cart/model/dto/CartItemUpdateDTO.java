@@ -1,4 +1,4 @@
-package in.maisonnoir.backend.api.common.item.model.dto.cartItem;
+package in.maisonnoir.backend.api.cart.model.dto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

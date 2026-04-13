@@ -1,15 +1,12 @@
 package in.maisonnoir.backend.api.account.service.impl;
 
-import in.maisonnoir.backend.api.account.model.dto.user.UserRegistrationDTO;
+import in.maisonnoir.backend.api.account.model.dto.user.UpdatePasswordDTO;
 import in.maisonnoir.backend.api.account.model.dto.user.UserResponseDTO;
 import in.maisonnoir.backend.api.account.model.dto.user.UserUpdateDTO;
-import in.maisonnoir.backend.api.account.model.enums.AccountRole;
 import in.maisonnoir.backend.api.account.repository.UserDAO;
 import in.maisonnoir.backend.api.account.model.entity.UserEntity;
-import in.maisonnoir.backend.api.cart.model.entity.CartEntity;
 import in.maisonnoir.backend.api.cart.repository.CartDAO;
-import in.maisonnoir.backend.api.cart.service.impl.CartServiceImpl;
-import in.maisonnoir.backend.api.common.exception.DuplicateResourceException;
+import in.maisonnoir.backend.api.cart.repository.CartItemDAO;
 import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
 import in.maisonnoir.backend.api.account.mapper.UserMapper;
 import in.maisonnoir.backend.api.account.service.UserService;
@@ -17,12 +14,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,45 +27,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserDAO userDAO;
     private final CartDAO cartDAO;
+    private final CartItemDAO cartItemDAO;
     private final PasswordEncoder passwordEncoder;
-    private final CartServiceImpl cartService;
 
     private UserEntity getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         String email = authentication.getName();
         return userDAO.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
-    }
-
-    @Override
-    public UserResponseDTO createUser(UserRegistrationDTO userDTO) {
-        if (userDAO.findByEmail(userDTO.getEmail()).isPresent()) {
-            throw new DuplicateResourceException(
-                    "User", "email", userDTO.getEmail(),
-                    "A user already exists with this email");
-        }
-
-        UserEntity entity = UserMapper.toEntity(userDTO);
-
-        // Hash password before saving
-        entity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        System.out.println(
-                "\n\nhashed password for admin123: " + new BCryptPasswordEncoder().encode("admin123") + "\n\n");
-
-        // Default role to CUSTOMER
-        entity.setRole(AccountRole.CUSTOMER);
-
-        // Create empty cart for new user
-        CartEntity cart = CartEntity.builder()
-                .itemIds(new ArrayList<>())
-                .totalAmount(BigDecimal.ZERO)
-                .build();
-        cart = cartDAO.save(cart);
-        entity.setCart(cart);
-
-        UserEntity saved = userDAO.save(entity);
-        return UserMapper.toResponse(saved);
     }
 
     @Override
@@ -84,29 +47,44 @@ public class UserServiceImpl implements UserService {
     public UserResponseDTO updateUser(UserUpdateDTO userDTO) {
         UserEntity currentUser = getCurrentUser();
 
-        boolean changed;
-
-        // Apply updates (excluding password)
-        changed = UserMapper.applyUpdate(userDTO, currentUser);
-
-        // If password provided, hash and set
-        if (userDTO.getPassword() != null && !userDTO.getPassword().isBlank()) {
-            currentUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            changed = true;
-        }
+        boolean changed = UserMapper.applyUpdate(userDTO, currentUser);
 
         UserEntity updated = userDAO.save(currentUser);
         return (changed) ? UserMapper.toResponse(updated) : null;
     }
 
     @Override
+    public void updatePassword(UpdatePasswordDTO dto) {
+        UserEntity currentUser = getCurrentUser();
+
+        // Verify old password
+        if (!passwordEncoder.matches(dto.getOldPassword(), currentUser.getPassword())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+
+        // Validate new passwords match
+        if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
+            throw new RuntimeException("New password and confirm password do not match");
+        }
+
+        // Ensure new password is different from old
+        if (passwordEncoder.matches(dto.getNewPassword(), currentUser.getPassword())) {
+            throw new RuntimeException("New password must be different from current password");
+        }
+
+        currentUser.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        userDAO.save(currentUser);
+    }
+
+    @Override
     public void deleteUser() {
         UserEntity currentUser = getCurrentUser();
 
-        // Delete cart first
-        if (currentUser.getCart() != null) {
-            cartService.deleteUserCart(currentUser.getCart().getCartId());
-        }
+        // Delete cart and cart items
+        cartDAO.findByUserId(currentUser.getId()).ifPresent(cart -> {
+            cartItemDAO.deleteByCartId(cart.getId());
+            cartDAO.delete(cart);
+        });
 
         userDAO.delete(currentUser);
     }

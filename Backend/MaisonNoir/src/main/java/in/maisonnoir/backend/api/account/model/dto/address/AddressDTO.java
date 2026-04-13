@@ -18,31 +18,29 @@ public class AddressDTO {
 
     @NotBlank(message = "Address Line 1 should not be empty")
     @SafeText
-    private String mainLine; // Flat No, House No
+    private String lineOne; // Flat No, House No
 
-    @NotBlank(message = "locality is required")
+    @NotBlank(message = "Address Line 2 is required")
     @SafeText
-    private String locality; // Building, society, colony, street
+    private String lineTwo; // Building, society, colony, street
 
     @SafeText
     private String landmark;
 
-    @NotBlank(message = "city is required")
+    @NotBlank(message = "City is required")
     @SafeText
     private String city;
 
-    @NotBlank(message = "state is required")
+    @NotBlank(message = "State is required")
     @SafeText
     private String state;
 
-
-    @NotBlank(message = "postal code is required")
-    @Pattern(regexp="\\d{6}", message = "Postal code must be 6 digit")
+    @NotBlank(message = "Pincode is required")
+    @Pattern(regexp="\\d{6}", message = "Pincode must be 6 digits")
     @SafeText
-    private String postalCode;
+    private String pincode;
 
-    @NotBlank(message = "country is required")
+    @NotBlank(message = "Country is required")
     @SafeText
     private String country;
-
 }

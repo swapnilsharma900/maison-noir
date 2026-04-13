@@ -2,20 +2,26 @@ package in.maisonnoir.backend.api.order.service.impl;
 
 import in.maisonnoir.backend.api.account.model.entity.AddressEntity;
 import in.maisonnoir.backend.api.account.model.entity.UserEntity;
+import in.maisonnoir.backend.api.account.repository.AddressDAO;
 import in.maisonnoir.backend.api.account.repository.UserDAO;
 import in.maisonnoir.backend.api.cart.model.entity.CartEntity;
+import in.maisonnoir.backend.api.cart.model.entity.CartItemEntity;
+import in.maisonnoir.backend.api.cart.repository.CartDAO;
+import in.maisonnoir.backend.api.cart.repository.CartItemDAO;
 import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
-import in.maisonnoir.backend.api.common.item.model.entity.ItemEntity;
-import in.maisonnoir.backend.api.common.item.repository.ItemDAO;
+import in.maisonnoir.backend.api.order.mapper.OrderItemMapper;
 import in.maisonnoir.backend.api.order.model.dto.OrderResponseDTO;
 import in.maisonnoir.backend.api.order.model.dto.PlaceOrderDTO;
 import in.maisonnoir.backend.api.order.model.dto.UpdateOrderStatusDTO;
-import in.maisonnoir.backend.api.order.model.enums.OrderStatus;
 import in.maisonnoir.backend.api.order.model.entity.OrderEntity;
+import in.maisonnoir.backend.api.order.model.entity.OrderItemEntity;
+import in.maisonnoir.backend.api.order.model.enums.OrderStatus;
 import in.maisonnoir.backend.api.order.repository.OrderDAO;
+import in.maisonnoir.backend.api.order.repository.OrderItemDAO;
 import in.maisonnoir.backend.api.order.service.OrderService;
 import in.maisonnoir.backend.api.order.mapper.OrderMapper;
-import in.maisonnoir.backend.api.common.item.mapper.OrderItemMapper;
+import in.maisonnoir.backend.api.product.model.entity.ProductVariantEntity;
+import in.maisonnoir.backend.api.product.repository.ProductVariantDAO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +40,12 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderDAO orderDAO;
-    private final ItemDAO itemDAO;
+    private final OrderItemDAO orderItemDAO;
+    private final CartDAO cartDAO;
+    private final CartItemDAO cartItemDAO;
+    private final ProductVariantDAO variantDAO;
     private final UserDAO userDAO;
+    private final AddressDAO addressDAO;
 
     private UserEntity getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -49,75 +59,79 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderResponseDTO placeOrder(PlaceOrderDTO placeOrderDTO) {
         UserEntity currentUser = getCurrentUser();
-        CartEntity cart = currentUser.getCart();
 
-        if (cart == null) {
-            throw new RuntimeException("Cart not found for user");
-        }
+        // Get cart
+        CartEntity cart = cartDAO.findByUserId(currentUser.getId())
+                .orElseThrow(() -> new RuntimeException("Cart not found for user"));
 
         // Validate cart has items
-        List<ItemEntity> cartItems = itemDAO.findByCartId(cart.getCartId());
+        List<CartItemEntity> cartItems = cartItemDAO.findByCartId(cart.getId());
         if (cartItems.isEmpty()) {
             throw new RuntimeException("Cannot place order with empty cart");
         }
 
-        // Fetch address from user (one-to-one relationship)
-        AddressEntity address = currentUser.getAddress();
-        if (address == null) {
-            throw new ResourceNotFoundException("Address", "user", currentUser.getUserId());
-        }
+        // Fetch address
+        AddressEntity address = addressDAO.findByUserId(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Address", "userId", currentUser.getId()));
 
         // Create order entity
-        OrderEntity order = OrderMapper.toEntity(placeOrderDTO, currentUser.getUserId(), address, cart);
-        order = orderDAO.save(order);
+        OrderEntity order = OrderMapper.toEntity(placeOrderDTO, currentUser.getId(), address, cart);
+        final OrderEntity savedOrder = orderDAO.save(order);
 
-        // Transition cart items → order items (freeze price, reassign ownership)
-        for (ItemEntity item : cartItems) {
-            OrderItemMapper.transitionToOrderItem(item, order.getOrderId());
-            itemDAO.save(item);
-            order.getItemIds().add(item.getItemId());
+        // Transition cart items → order items (purely in MySQL)
+        for (CartItemEntity cartItem : cartItems) {
+            OrderItemEntity orderItem = OrderItemMapper.fromCartItem(cartItem, savedOrder);
+            orderItemDAO.save(orderItem);
+
+            // Decrement stock on the product variant
+            variantDAO.findById(cartItem.getVariantId()).ifPresent(variant -> {
+                int newStock = variant.getStockCount() - cartItem.getQuantity();
+                variant.setStockCount(Math.max(newStock, 0));
+                if (newStock <= 0) {
+                    variant.setIsAvailable(false);
+                }
+                variantDAO.save(variant);
+            });
         }
 
-        orderDAO.save(order); // Update with order item IDs
-
         // Clear cart after order placement
-        cart.getItemIds().clear();
+        cartItemDAO.deleteByCartId(cart.getId());
         cart.setTotalAmount(BigDecimal.ZERO);
+        cartDAO.save(cart);
 
-        log.info("Order placed successfully: {} for user: {}", order.getOrderId(), currentUser.getUserId());
-        return OrderMapper.toResponse(order, cartItems);
+        // Re-fetch order with items for response
+        OrderEntity finalOrder = orderDAO.findById(savedOrder.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order", "id", savedOrder.getId()));
+
+        log.info("Order placed successfully: {} for user: {}", savedOrder.getId(), currentUser.getId());
+        return OrderMapper.toResponse(finalOrder);
     }
 
     @Override
     public OrderResponseDTO getOrderById(Long orderId) {
         UserEntity currentUser = getCurrentUser();
 
-        OrderEntity order = orderDAO.findByOrderId(orderId)
+        OrderEntity order = orderDAO.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
 
-        // Verify order belongs to current user (security check)
-        if (!order.getUserId().equals(currentUser.getUserId())) {
+        // Verify order belongs to current user
+        if (!order.getUserId().equals(currentUser.getId())) {
             throw new ResourceNotFoundException("Order", "id", orderId);
         }
 
-        List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
-
-        log.info("Fetched order: {} for user: {}", orderId, currentUser.getUserId());
-        return OrderMapper.toResponse(order, orderItems);
+        log.info("Fetched order: {} for user: {}", orderId, currentUser.getId());
+        return OrderMapper.toResponse(order);
     }
 
     @Override
     public List<OrderResponseDTO> getMyOrders() {
         UserEntity currentUser = getCurrentUser();
 
-        List<OrderEntity> orders = orderDAO.findByUserIdOrderByCreatedAtDesc(currentUser.getUserId());
+        List<OrderEntity> orders = orderDAO.findByUserIdOrderByPlacedAtDesc(currentUser.getId());
 
-        log.info("Fetched {} orders for user: {}", orders.size(), currentUser.getUserId());
+        log.info("Fetched {} orders for user: {}", orders.size(), currentUser.getId());
         return orders.stream()
-                .map(order -> {
-                    List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
-                    return OrderMapper.toResponse(order, orderItems);
-                })
+                .map(OrderMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -125,11 +139,11 @@ public class OrderServiceImpl implements OrderService {
     public OrderResponseDTO cancelOrder(Long orderId) {
         UserEntity currentUser = getCurrentUser();
 
-        OrderEntity order = orderDAO.findByOrderId(orderId)
+        OrderEntity order = orderDAO.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
 
         // Verify order belongs to current user
-        if (!order.getUserId().equals(currentUser.getUserId())) {
+        if (!order.getUserId().equals(currentUser.getId())) {
             throw new ResourceNotFoundException("Order", "id", orderId);
         }
 
@@ -141,24 +155,19 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderStatus(OrderStatus.CANCELLED);
         orderDAO.save(order);
 
-        List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
-
-        log.info("Order cancelled: {} by user: {}", orderId, currentUser.getUserId());
-        return OrderMapper.toResponse(order, orderItems);
+        log.info("Order cancelled: {} by user: {}", orderId, currentUser.getId());
+        return OrderMapper.toResponse(order);
     }
 
     // ADMIN SERVICES
 
     @Override
     public List<OrderResponseDTO> getAllOrders() {
-        List<OrderEntity> orders = orderDAO.findAllByOrderByCreatedAtDesc();
+        List<OrderEntity> orders = orderDAO.findAllByOrderByPlacedAtDesc();
 
         log.info("Admin fetched all orders: {} items", orders.size());
         return orders.stream()
-                .map(order -> {
-                    List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
-                    return OrderMapper.toResponse(order, orderItems);
-                })
+                .map(OrderMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -168,25 +177,24 @@ public class OrderServiceImpl implements OrderService {
 
         log.info("Admin fetched orders by status {}: {} items", orderStatus, orders.size());
         return orders.stream()
-                .map(order -> {
-                    List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
-                    return OrderMapper.toResponse(order, orderItems);
-                })
+                .map(OrderMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public OrderResponseDTO updateOrderStatus(Long orderId, UpdateOrderStatusDTO updateOrderStatusDTO) {
-        OrderEntity order = orderDAO.findByOrderId(orderId)
+        OrderEntity order = orderDAO.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
+
+        // Enforce: updates only allowed if order is not shipped/delivered/cancelled/returned
+        if (!order.isUpdatable()) {
+            throw new RuntimeException("Order cannot be updated. Current status: " + order.getOrderStatus());
+        }
 
         order.setOrderStatus(updateOrderStatusDTO.getOrderStatus());
         orderDAO.save(order);
 
-        List<ItemEntity> orderItems = itemDAO.findByOrderId(order.getOrderId());
-
         log.info("Admin updated order status: {} to {}", orderId, updateOrderStatusDTO.getOrderStatus());
-        return OrderMapper.toResponse(order, orderItems);
+        return OrderMapper.toResponse(order);
     }
-
 }

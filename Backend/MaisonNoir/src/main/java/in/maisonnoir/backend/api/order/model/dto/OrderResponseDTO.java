@@ -1,7 +1,5 @@
 package in.maisonnoir.backend.api.order.model.dto;
 
-import in.maisonnoir.backend.api.account.model.dto.address.AddressDTO;
-import in.maisonnoir.backend.api.common.item.model.dto.orderItem.OrderItemResponseDTO;
 import in.maisonnoir.backend.api.order.model.enums.OrderStatus;
 import in.maisonnoir.backend.api.order.model.enums.PaymentStatus;
 import lombok.AllArgsConstructor;
@@ -21,15 +19,19 @@ import java.util.List;
 @Builder
 public class OrderResponseDTO {
 
-    private Long orderId;
+    private Long id;
 
     private Long userId;
 
-    private AddressDTO shippingAddress;
+    // Inline shipping address
+    private String shipName;
+    private String shipFlat;
+    private String shipCity;
+    private String shipPincode;
 
     private List<OrderItemResponseDTO> orderItems;
 
-    private BigDecimal totalAmount;
+    private BigDecimal total;
 
     private OrderStatus orderStatus;
 
@@ -37,7 +39,7 @@ public class OrderResponseDTO {
 
     private String paymentMethod;
 
-    private LocalDateTime createdAt;
+    private LocalDateTime placedAt;
 
     private LocalDateTime updatedAt;
 }

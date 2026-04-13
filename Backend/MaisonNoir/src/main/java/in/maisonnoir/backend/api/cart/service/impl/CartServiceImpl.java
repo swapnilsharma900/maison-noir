@@ -2,19 +2,19 @@ package in.maisonnoir.backend.api.cart.service.impl;
 
 import in.maisonnoir.backend.api.account.model.entity.UserEntity;
 import in.maisonnoir.backend.api.account.repository.UserDAO;
+import in.maisonnoir.backend.api.cart.mapper.CartItemMapper;
 import in.maisonnoir.backend.api.cart.mapper.CartMapper;
-import in.maisonnoir.backend.api.common.item.mapper.CartItemMapper;
-import in.maisonnoir.backend.api.common.item.model.dto.cartItem.CartItemAddDTO;
-import in.maisonnoir.backend.api.common.item.model.dto.cartItem.CartItemUpdateDTO;
+import in.maisonnoir.backend.api.cart.model.dto.CartItemAddDTO;
+import in.maisonnoir.backend.api.cart.model.dto.CartItemUpdateDTO;
 import in.maisonnoir.backend.api.cart.model.dto.CartResponseDTO;
 import in.maisonnoir.backend.api.cart.model.entity.CartEntity;
+import in.maisonnoir.backend.api.cart.model.entity.CartItemEntity;
 import in.maisonnoir.backend.api.cart.repository.CartDAO;
+import in.maisonnoir.backend.api.cart.repository.CartItemDAO;
 import in.maisonnoir.backend.api.cart.service.CartService;
 import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
-import in.maisonnoir.backend.api.common.item.model.entity.ItemEntity;
-import in.maisonnoir.backend.api.common.item.repository.ItemDAO;
-import in.maisonnoir.backend.api.product.model.entity.ProductEntity;
-import in.maisonnoir.backend.api.product.repository.ProductDAO;
+import in.maisonnoir.backend.api.product.model.entity.ProductVariantEntity;
+import in.maisonnoir.backend.api.product.repository.ProductVariantDAO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +22,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,206 +30,165 @@ import java.util.List;
 @Slf4j
 public class CartServiceImpl implements CartService {
     private final CartDAO cartDAO;
-    private final ItemDAO itemDAO;
+    private final CartItemDAO cartItemDAO;
+    private final ProductVariantDAO variantDAO;
     private final UserDAO userDAO;
-    private final ProductDAO productDAO;
 
-    private CartEntity getAuthenticatedUserCart() {
+    private UserEntity getAuthenticatedUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity user = userDAO.findByEmail(email)
+        return userDAO.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
-        return user.getCart();
+    }
+
+    private CartEntity getOrCreateCart(UserEntity user) {
+        return cartDAO.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    CartEntity cart = CartEntity.builder()
+                            .userId(user.getId())
+                            .totalAmount(BigDecimal.ZERO)
+                            .build();
+                    cart = cartDAO.save(cart);
+                    log.info("New cart created for user id: {} with cart id: {}", user.getId(), cart.getId());
+                    return cart;
+                });
     }
 
     /**
-     * Refresh product snapshots and prices from the master product collection.
-     * This ensures that cart items always reflect the latest product pricing.
+     * Refresh product snapshots and prices from the master variant catalog.
      */
-    private List<ItemEntity> refreshCartItemPrices(List<ItemEntity> cartItems) {
-        for (ItemEntity item : cartItems) {
-            productDAO.findById(item.getProductSnapshot().getProductId()).ifPresent(latestProduct -> {
-                // Preserve the selected size from the existing snapshot
-                String selectedSize = item.getProductSnapshot() != null
-                        ? item.getProductSnapshot().getSelectedSize() : null;
-                item.setProductSnapshot(
-                        CartItemMapper.buildSnapshot(latestProduct, selectedSize));
+    private void refreshCartItemPrices(List<CartItemEntity> cartItems) {
+        for (CartItemEntity cartItem : cartItems) {
+            variantDAO.findById(cartItem.getVariantId()).ifPresent(variant -> {
+                CartItemMapper.refreshSnapshot(cartItem, variant);
             });
         }
-        // Batch save all refreshed items
-        itemDAO.saveAll(cartItems);
-        return cartItems;
+        cartItemDAO.saveAll(cartItems);
     }
 
-    private void updateCartTotals(CartEntity cart, List<ItemEntity> cartItems) {
+    private void updateCartTotals(CartEntity cart, List<CartItemEntity> cartItems) {
         BigDecimal totalAmount = cartItems.stream()
-                .map(item -> item.getProductSnapshot().getProductPrice()
+                .map(item -> item.getSnapshotPrice()
                         .multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         cart.setTotalAmount(totalAmount);
-        cart.setUpdatedAt(LocalDateTime.now());
         cartDAO.save(cart);
         log.info("Cart updated with {} items, total: {}", cartItems.size(), totalAmount);
     }
 
-    private CartEntity createCart(UserEntity currentUser) {
-        CartEntity cart = new CartEntity();
-        cart.setUpdatedAt(LocalDateTime.now());
-        cart.setTotalAmount(BigDecimal.ZERO);
-        cart.setItemIds(new ArrayList<>());
-        cart = cartDAO.save(cart);
-
-        currentUser.setCart(cart);
-        userDAO.save(currentUser);
-
-        log.info("New cart created for user itemId: {} with cart itemId: {}", currentUser.getUserId(),
-                cart.getCartId());
-        return cart;
-    }
-
     @Override
     public CartResponseDTO getUserCart() {
-        CartEntity cart = getAuthenticatedUserCart();
-        if (cart == null) {
-            String email = SecurityContextHolder.getContext().getAuthentication().getName();
-            UserEntity currentUser = userDAO.findByEmail(email)
-                    .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+        UserEntity user = getAuthenticatedUser();
+        CartEntity cart = getOrCreateCart(user);
 
-            cart = createCart(currentUser);
-        }
-
-        // Fetch items and refresh prices from the master product
-        List<ItemEntity> cartItems = itemDAO.findByCartId(cart.getCartId());
-        cartItems = refreshCartItemPrices(cartItems);
-
-        // Recalculate totals with live prices
+        List<CartItemEntity> cartItems = cartItemDAO.findByCartId(cart.getId());
+        refreshCartItemPrices(cartItems);
         updateCartTotals(cart, cartItems);
 
-        log.info("Cart fetched with itemId: {}", cart.getCartId());
+        log.info("Cart fetched with id: {}", cart.getId());
         return CartMapper.toResponse(cart, cartItems);
     }
 
     @Override
-    public void deleteUserCart(Long cartId) {
-        // Delete all cart items from MongoDB
-        itemDAO.deleteByCartId(cartId);
-
-        // Delete cart from MySQL
-        cartDAO.deleteById(cartId);
-        log.info("Cart Deleted Successfully");
+    public void deleteUserCart(Long userId) {
+        cartDAO.findByUserId(userId).ifPresent(cart -> {
+            cartItemDAO.deleteByCartId(cart.getId());
+            cartDAO.delete(cart);
+            log.info("Cart deleted for user id: {}", userId);
+        });
     }
 
     @Override
     public void clearCart() {
-        CartEntity cart = getAuthenticatedUserCart();
-        if (cart == null) {
-            throw new RuntimeException("Cart not found for user");
-        }
+        UserEntity user = getAuthenticatedUser();
+        CartEntity cart = cartDAO.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Cart not found for user"));
 
-        // Delete all cart items from MongoDB
-        itemDAO.deleteByCartId(cart.getCartId());
-        // Clear cart item IDs and reset totals
-        cart.getItemIds().clear();
+        cartItemDAO.deleteByCartId(cart.getId());
         cart.setTotalAmount(BigDecimal.ZERO);
         cartDAO.save(cart);
-        log.info("Cart cleared with itemId: {}", cart.getCartId());
+        log.info("Cart cleared with id: {}", cart.getId());
     }
 
     @Override
     public CartResponseDTO addCartItem(CartItemAddDTO dto) {
-        CartEntity cart = getAuthenticatedUserCart();
+        UserEntity user = getAuthenticatedUser();
+        CartEntity cart = getOrCreateCart(user);
 
-        if (cart == null) {
-            throw new RuntimeException("Cart not found for user");
-        }
+        // Fetch the variant (SKU) from MongoDB
+        ProductVariantEntity variant = variantDAO.findById(dto.getVariantId())
+                .orElseThrow(() -> new ResourceNotFoundException("Variant", "id", dto.getVariantId()));
 
-        // Fetch product
-        ProductEntity product = productDAO.findById(dto.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product", "id", dto.getProductId()));
-
-        // Check if item already exists in cart with the exact same selected size
-        List<ItemEntity> itemList = itemDAO.findByCartId(cart.getCartId());
-        ItemEntity existingItem = itemList.stream()
-                .filter(item -> item.getProductSnapshot().getProductId().equals(dto.getProductId()) &&
-                         java.util.Objects.equals(item.getProductSnapshot().getSelectedSize(), dto.getSelectedSize()))
+        // Check if the same variant already exists in cart
+        List<CartItemEntity> existingItems = cartItemDAO.findByCartId(cart.getId());
+        CartItemEntity existingItem = existingItems.stream()
+                .filter(ci -> ci.getVariantId().equals(dto.getVariantId()))
                 .findFirst()
                 .orElse(null);
 
         if (existingItem != null) {
-            CartItemUpdateDTO updateDTO = CartItemUpdateDTO.builder()
-                    .quantity(existingItem.getQuantity() + dto.getQuantity())
-                    .build();
-            return updateCartItem(updateDTO, existingItem.getItemId());
+            // Update quantity of existing item
+            existingItem.setQuantity(existingItem.getQuantity() + dto.getQuantity());
+            cartItemDAO.save(existingItem);
+        } else {
+            // Create new SQL cart item directly from the variant snapshot
+            CartItemEntity cartItem = CartItemMapper.toEntity(cart, variant, dto.getQuantity());
+            cartItemDAO.save(cartItem);
         }
 
-        // Create new cart item
-        ItemEntity newItem = CartItemMapper.toEntity(dto, cart.getCartId(), product);
-        System.out.println("\n item size "+newItem.getProductSnapshot().getSelectedSize()+"\n\n\n");
-        newItem = itemDAO.save(newItem);
-        cart.getItemIds().add(newItem.getItemId());
-
         // Update cart totals
-        List<ItemEntity> updatedItems = itemDAO.findByCartId(cart.getCartId());
+        List<CartItemEntity> updatedItems = cartItemDAO.findByCartId(cart.getId());
         updateCartTotals(cart, updatedItems);
 
-        log.info("Cart item: {} added successfully to the cart with itemId: {}", dto, cart.getCartId());
+        log.info("Cart item added to cart id: {}", cart.getId());
         return CartMapper.toResponse(cart, updatedItems);
     }
 
     @Override
-    public CartResponseDTO updateCartItem(CartItemUpdateDTO dto, String itemId) {
-        CartEntity cart = getAuthenticatedUserCart();
-        if (cart == null) {
-            throw new RuntimeException("Cart not found for user");
-        }
+    public CartResponseDTO updateCartItem(CartItemUpdateDTO dto, Long cartItemId) {
+        UserEntity user = getAuthenticatedUser();
+        CartEntity cart = cartDAO.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Cart not found for user"));
 
-        // Find cart item
-        ItemEntity cartItem = itemDAO.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item", "id", itemId));
+        CartItemEntity cartItem = cartItemDAO.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("CartItem", "id", cartItemId));
 
         // Verify item belongs to current user's cart
-        if (!cartItem.getCartId().equals(cart.getCartId())) {
-            throw new ResourceNotFoundException("Item", "id", itemId);
+        if (!cartItem.getCart().getId().equals(cart.getId())) {
+            throw new ResourceNotFoundException("CartItem", "id", cartItemId);
         }
 
-        // Apply update
-        CartItemMapper.applyUpdate(cartItem, dto);
-        itemDAO.save(cartItem);
+        cartItem.setQuantity(dto.getQuantity());
+        cartItemDAO.save(cartItem);
 
-        // Update cart totals
-        List<ItemEntity> cartItems = itemDAO.findByCartId(cart.getCartId());
+        List<CartItemEntity> cartItems = cartItemDAO.findByCartId(cart.getId());
         updateCartTotals(cart, cartItems);
 
-        log.info("Cart item: {} with item itemId: {} updated successfully to the cart with itemId: {}",
-                dto, itemId, cart.getCartId());
+        log.info("Cart item id: {} updated in cart id: {}", cartItemId, cart.getId());
         return CartMapper.toResponse(cart, cartItems);
     }
 
     @Override
-    public CartResponseDTO removeCartItem(String itemId) {
-        CartEntity cart = getAuthenticatedUserCart();
-        if (cart == null) {
-            throw new RuntimeException("Cart not found for user");
-        }
+    public CartResponseDTO removeCartItem(Long cartItemId) {
+        UserEntity user = getAuthenticatedUser();
+        CartEntity cart = cartDAO.findByUserId(user.getId())
+                .orElseThrow(() -> new RuntimeException("Cart not found for user"));
 
-        // Find cart item
-        ItemEntity cartItem = itemDAO.findById(itemId)
-                .orElseThrow(() -> new ResourceNotFoundException("Item", "id", itemId));
+        CartItemEntity cartItem = cartItemDAO.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("CartItem", "id", cartItemId));
 
         // Verify item belongs to current user's cart
-        if (!cartItem.getCartId().equals(cart.getCartId())) {
-            throw new ResourceNotFoundException("Item", "id", itemId);
+        if (!cartItem.getCart().getId().equals(cart.getId())) {
+            throw new ResourceNotFoundException("CartItem", "id", cartItemId);
         }
-        // Remove item
-        itemDAO.deleteById(itemId);
-        cart.getItemIds().remove(itemId);
 
-        // Update cart totals
-        List<ItemEntity> cartItems = itemDAO.findByCartId(cart.getCartId());
+        // Delete only from SQL — no MongoDB writes needed
+        cartItemDAO.delete(cartItem);
+
+        List<CartItemEntity> cartItems = cartItemDAO.findByCartId(cart.getId());
         updateCartTotals(cart, cartItems);
 
-        log.info("Cart Item with itemId: {} Deleted Successfully", itemId);
+        log.info("Cart item id: {} removed from cart id: {}", cartItemId, cart.getId());
         return CartMapper.toResponse(cart, cartItems);
     }
-
 }

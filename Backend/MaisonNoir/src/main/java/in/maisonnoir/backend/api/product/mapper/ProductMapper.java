@@ -2,103 +2,106 @@ package in.maisonnoir.backend.api.product.mapper;
 
 import in.maisonnoir.backend.api.product.model.dto.ProductRequestDTO;
 import in.maisonnoir.backend.api.product.model.dto.ProductResponseDTO;
-import in.maisonnoir.backend.api.product.model.dto.VariantDTO;
+import in.maisonnoir.backend.api.product.model.dto.VariantItemDTO;
 import in.maisonnoir.backend.api.product.model.entity.ProductEntity;
+import in.maisonnoir.backend.api.product.model.entity.ProductVariantEntity;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ProductMapper {
+
+    // ───────────────── Product ─────────────────
+
     public static ProductEntity toEntity(ProductRequestDTO dto) {
-        if(dto == null) return null;
+        if (dto == null) return null;
 
         return ProductEntity.builder()
-                .productName(dto.getName())
-                .productDescription(dto.getDescription())
-                .productPrice(dto.getPrice())
-                .productImage(dto.getImage())
-                .productCategory(dto.getCategory())
-                .productVariants(dto.getVariants().stream()
-                        .map(ProductMapper::toVariantEntity)
-                        .collect(Collectors.toList()))
-                .productStock(dto.getStock())
-                .productRating(0.0) // Default for new products
-                .productReviews(0) // Default for new products
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .category(dto.getCategory())
+                .images(dto.getImages() != null ? dto.getImages() : Collections.emptyList())
+                .variants(dto.getVariants() != null ? dto.getVariants() : Collections.emptyList())
+                .attributes(dto.getAttributes() != null ? dto.getAttributes() : Collections.emptyMap())
+                .isActive(true)
                 .build();
     }
 
-
-    public static ProductResponseDTO toResponse(ProductEntity entity) {
+    public static ProductResponseDTO toResponse(ProductEntity entity, List<ProductVariantEntity> variantEntities) {
         if (entity == null) return null;
 
-        List<ProductEntity.ProductVariant> variants = Optional.ofNullable(entity.getProductVariants())
-                .orElse(Collections.emptyList());
+        List<VariantItemDTO> variantItems = Optional.ofNullable(variantEntities)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(ProductMapper::toVariantItemDTO)
+                .collect(Collectors.toList());
 
         return ProductResponseDTO.builder()
-                .id(entity.getProductId())
-                .name(entity.getProductName())
-                .description(entity.getProductDescription())
-                .price(entity.getProductPrice())
-                .image(entity.getProductImage())
-                .category(entity.getProductCategory())
-                .variants(variants.stream()
-                        .map(ProductMapper::toVariantDTO)
-                        .collect(Collectors.toList()))
-                .stock(entity.getProductStock())
-                .averageRating(entity.getProductRating())
-                .totalReviews(entity.getProductReviews())
-                .updatedAt(entity.getUpdatedAt())
+                .id(entity.getId())
+                .name(entity.getName())
+                .description(entity.getDescription())
+                .category(entity.getCategory())
+                .images(entity.getImages())
+                .variants(entity.getVariants())
+                .attributes(entity.getAttributes())
+                .isActive(entity.getIsActive())
+                .createdAt(entity.getCreatedAt())
+                .variantItems(variantItems)
                 .build();
     }
 
     public static void applyUpdate(ProductRequestDTO dto, ProductEntity entity) {
         if (dto.getName() != null && !dto.getName().isBlank()) {
-            entity.setProductName(dto.getName());
+            entity.setName(dto.getName());
         }
         if (dto.getDescription() != null && !dto.getDescription().isBlank()) {
-            entity.setProductDescription(dto.getDescription());
-        }
-        if (dto.getPrice() != null) {
-            entity.setProductPrice(dto.getPrice());
-        }
-        if (dto.getImage() != null && !dto.getImage().isBlank()) {
-            entity.setProductImage(dto.getImage());
+            entity.setDescription(dto.getDescription());
         }
         if (dto.getCategory() != null && !dto.getCategory().isBlank()) {
-            entity.setProductCategory(dto.getCategory());
+            entity.setCategory(dto.getCategory());
         }
-        if (dto.getVariants() != null && !dto.getVariants().isEmpty()) {
-            entity.setProductVariants(dto.getVariants().stream()
-                    .map(ProductMapper::toVariantEntity)
-                    .collect(Collectors.toList()));
+        if (dto.getImages() != null) {
+            entity.setImages(dto.getImages());
         }
-        if (dto.getStock() != null) {
-            entity.setProductStock(dto.getStock());
+        if (dto.getVariants() != null) {
+            entity.setVariants(dto.getVariants());
+        }
+        if (dto.getAttributes() != null) {
+            entity.setAttributes(dto.getAttributes());
         }
     }
 
-    private static ProductEntity.ProductVariant toVariantEntity(VariantDTO dto) {
+    // ───────────────── Variant Items ─────────────────
+
+    public static ProductVariantEntity toVariantEntity(VariantItemDTO dto, String productId, String category) {
         if (dto == null) return null;
 
-        return ProductEntity.ProductVariant.builder()
-                .variantSize(dto.getSize())
-                .variantStock(dto.getStock())
-                .variantPriceAdjustment(dto.getPriceAdjustment() != null ?
-                        dto.getPriceAdjustment() : BigDecimal.ZERO)
+        return ProductVariantEntity.builder()
+                .productId(productId)
+                .variantLabel(dto.getVariantLabel())
+                .name(dto.getName())
+                .image(dto.getImage())
+                .price(dto.getPrice())
+                .category(category) // denormalized from parent product
+                .stockCount(dto.getStockCount())
+                .isAvailable(dto.getIsAvailable() != null ? dto.getIsAvailable() : true)
                 .build();
     }
 
-    private static VariantDTO toVariantDTO(ProductEntity.ProductVariant variant) {
-        if (variant == null) return null;
+    public static VariantItemDTO toVariantItemDTO(ProductVariantEntity entity) {
+        if (entity == null) return null;
 
-        return VariantDTO.builder()
-                .size(variant.getVariantSize())
-                .stock(variant.getVariantStock())
-                .priceAdjustment(variant.getVariantPriceAdjustment() != null ?
-                        variant.getVariantPriceAdjustment() : BigDecimal.ZERO)
+        return VariantItemDTO.builder()
+                .id(entity.getId())
+                .variantLabel(entity.getVariantLabel())
+                .name(entity.getName())
+                .image(entity.getImage())
+                .price(entity.getPrice())
+                .category(entity.getCategory())
+                .stockCount(entity.getStockCount())
+                .isAvailable(entity.getIsAvailable())
                 .build();
     }
 }

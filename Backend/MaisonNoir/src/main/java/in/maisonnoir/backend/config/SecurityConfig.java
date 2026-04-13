@@ -44,7 +44,6 @@ public class SecurityConfig {
                                 "/logout",
                                 "/api/auth/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/user").anonymous() // temporary (for testing)
                         .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -55,15 +54,11 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager(); // ✅ no null risk
+        return authConfig.getAuthenticationManager();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // defaults are fine; tune strength later
+        return new BCryptPasswordEncoder();
     }
-
 }
-
-
-

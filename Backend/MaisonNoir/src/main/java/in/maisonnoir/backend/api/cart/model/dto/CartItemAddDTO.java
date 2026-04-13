@@ -1,4 +1,4 @@
-package in.maisonnoir.backend.api.common.item.model.dto.cartItem;
+package in.maisonnoir.backend.api.cart.model.dto;
 
 import in.maisonnoir.backend.api.common.validation.SafeText;
 import jakarta.validation.constraints.Min;
@@ -17,13 +17,9 @@ import lombok.Setter;
 @Builder
 public class CartItemAddDTO {
 
-    @NotBlank(message = "Product ID is required")
+    @NotBlank(message = "Variant ID is required")
     @SafeText
-    private String productId;
-
-    @NotBlank(message = "Selected size is required")
-    @SafeText
-    private String selectedSize;
+    private String variantId;
 
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")

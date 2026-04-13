@@ -14,9 +14,9 @@ public interface ProductDAO extends MongoRepository<ProductEntity, String> {
     @NotNull
     Optional<ProductEntity> findById(@NotNull String id);
 
-    List<ProductEntity> findByProductCategory(String productCategory);
+    List<ProductEntity> findByCategory(String category);
 
-    List<ProductEntity> findByProductNameContainingIgnoreCase(String productName);
+    List<ProductEntity> findByNameContainingIgnoreCase(String name);
 
-    boolean existsByProductName(String productName);
+    boolean existsByName(String name);
 }

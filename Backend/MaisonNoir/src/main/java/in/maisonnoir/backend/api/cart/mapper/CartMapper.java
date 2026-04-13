@@ -1,10 +1,9 @@
 package in.maisonnoir.backend.api.cart.mapper;
 
-import in.maisonnoir.backend.api.common.item.mapper.CartItemMapper;
-import in.maisonnoir.backend.api.common.item.model.dto.cartItem.CartItemResponseDTO;
+import in.maisonnoir.backend.api.cart.model.dto.CartItemResponseDTO;
 import in.maisonnoir.backend.api.cart.model.dto.CartResponseDTO;
 import in.maisonnoir.backend.api.cart.model.entity.CartEntity;
-import in.maisonnoir.backend.api.common.item.model.entity.ItemEntity;
+import in.maisonnoir.backend.api.cart.model.entity.CartItemEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,7 +19,7 @@ public class CartMapper {
     /**
      * Build a CartResponseDTO from the cart entity and its associated items.
      */
-    public static CartResponseDTO toResponse(CartEntity entity, List<ItemEntity> cartItems) {
+    public static CartResponseDTO toResponse(CartEntity entity, List<CartItemEntity> cartItems) {
         if (entity == null)
             return null;
 
@@ -28,16 +27,16 @@ public class CartMapper {
                 .map(CartItemMapper::toResponse)
                 .collect(Collectors.toList());
 
-        int totalItems = itemDTOs.stream()
-                .mapToInt(CartItemResponseDTO::getQuantity)
+        int totalItems = cartItems.stream()
+                .mapToInt(CartItemEntity::getQuantity)
                 .sum();
 
         return CartResponseDTO.builder()
-                .cartId(entity.getCartId())
+                .id(entity.getId())
                 .items(itemDTOs)
                 .totalItems(totalItems)
                 .totalAmount(entity.getTotalAmount())
-                .updatedAt(entity.getUpdatedAt().toString())
+                .updatedAt(entity.getUpdatedAt() != null ? entity.getUpdatedAt().toString() : null)
                 .build();
     }
 }
