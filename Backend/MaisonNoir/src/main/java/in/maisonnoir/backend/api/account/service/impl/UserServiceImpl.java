@@ -7,6 +7,7 @@ import in.maisonnoir.backend.api.account.repository.UserDAO;
 import in.maisonnoir.backend.api.account.model.entity.UserEntity;
 import in.maisonnoir.backend.api.cart.repository.CartDAO;
 import in.maisonnoir.backend.api.cart.repository.CartItemDAO;
+import in.maisonnoir.backend.api.common.exception.BadRequestException;
 import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
 import in.maisonnoir.backend.api.account.mapper.UserMapper;
 import in.maisonnoir.backend.api.account.service.UserService;
@@ -59,17 +60,17 @@ public class UserServiceImpl implements UserService {
 
         // Verify old password
         if (!passwordEncoder.matches(dto.getOldPassword(), currentUser.getPassword())) {
-            throw new RuntimeException("Current password is incorrect");
+            throw new BadRequestException("The current password you entered is incorrect.");
         }
 
         // Validate new passwords match
         if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
-            throw new RuntimeException("New password and confirm password do not match");
+            throw new BadRequestException("New password and confirmation do not match. Please re-enter.");
         }
 
         // Ensure new password is different from old
         if (passwordEncoder.matches(dto.getNewPassword(), currentUser.getPassword())) {
-            throw new RuntimeException("New password must be different from current password");
+            throw new BadRequestException("Your new password must be different from your current password.");
         }
 
         currentUser.setPassword(passwordEncoder.encode(dto.getNewPassword()));

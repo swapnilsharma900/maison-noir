@@ -1,15 +1,26 @@
 package in.maisonnoir.backend.api.common.response;
 
-import java.time.Instant;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.time.Instant;
+import java.util.Map;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record ErrorResponse(
         boolean success,
         String message,
-        String errorCode, // e.g., ERR_VALIDATION, ERR_NOT_FOUND, ERR_UNEXPECTED
+        String errorCode,
         Instant timestamp,
-        String path // request URI
+        String path,
+        Map<String, String> fieldErrors
 ) {
+    /** Standard error — no field-level details. */
     public ErrorResponse(String message, String errorCode, String path) {
-        this(false, message, errorCode, Instant.now(), path);
+        this(false, message, errorCode, Instant.now(), path, null);
+    }
+
+    /** Validation error — includes a map of field → message. */
+    public ErrorResponse(String message, String errorCode, String path, Map<String, String> fieldErrors) {
+        this(false, message, errorCode, Instant.now(), path, fieldErrors);
     }
 }

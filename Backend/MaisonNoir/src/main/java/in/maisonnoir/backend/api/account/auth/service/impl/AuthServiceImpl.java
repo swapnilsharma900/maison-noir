@@ -9,7 +9,9 @@ import in.maisonnoir.backend.api.account.model.enums.AccountRole;
 import in.maisonnoir.backend.api.account.repository.UserDAO;
 import in.maisonnoir.backend.api.cart.model.entity.CartEntity;
 import in.maisonnoir.backend.api.cart.repository.CartDAO;
+import in.maisonnoir.backend.api.common.exception.BadRequestException;
 import in.maisonnoir.backend.api.common.exception.DuplicateResourceException;
+import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponseDTO register(RegisterDTO dto) {
         // Validate passwords match
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
-            throw new RuntimeException("Passwords do not match");
+            throw new BadRequestException("Password and confirmation do not match. Please re-enter.");
         }
 
         // Check duplicate email
@@ -78,7 +80,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Fetch user details
         UserEntity user = userDAO.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", dto.getEmail()));
 
         log.info("User logged in: {}", user.getEmail());
 

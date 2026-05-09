@@ -102,7 +102,7 @@ public class CartServiceImpl implements CartService {
     public void clearCart() {
         UserEntity user = getAuthenticatedUser();
         CartEntity cart = cartDAO.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Cart not found for user"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", "userId", user.getId()));
 
         cartItemDAO.deleteByCartId(cart.getId());
         cart.setTotalAmount(BigDecimal.ZERO);
@@ -148,7 +148,7 @@ public class CartServiceImpl implements CartService {
     public CartResponseDTO updateCartItem(CartItemUpdateDTO dto, Long cartItemId) {
         UserEntity user = getAuthenticatedUser();
         CartEntity cart = cartDAO.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Cart not found for user"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", "userId", user.getId()));
 
         CartItemEntity cartItem = cartItemDAO.findById(cartItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem", "id", cartItemId));
@@ -172,7 +172,7 @@ public class CartServiceImpl implements CartService {
     public CartResponseDTO removeCartItem(Long cartItemId) {
         UserEntity user = getAuthenticatedUser();
         CartEntity cart = cartDAO.findByUserId(user.getId())
-                .orElseThrow(() -> new RuntimeException("Cart not found for user"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", "userId", user.getId()));
 
         CartItemEntity cartItem = cartItemDAO.findById(cartItemId)
                 .orElseThrow(() -> new ResourceNotFoundException("CartItem", "id", cartItemId));

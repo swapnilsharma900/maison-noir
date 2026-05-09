@@ -8,6 +8,8 @@ import in.maisonnoir.backend.api.cart.model.entity.CartEntity;
 import in.maisonnoir.backend.api.cart.model.entity.CartItemEntity;
 import in.maisonnoir.backend.api.cart.repository.CartDAO;
 import in.maisonnoir.backend.api.cart.repository.CartItemDAO;
+import in.maisonnoir.backend.api.common.exception.BadRequestException;
+import in.maisonnoir.backend.api.common.exception.OrderNotModifiableException;
 import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
 import in.maisonnoir.backend.api.order.mapper.OrderItemMapper;
 import in.maisonnoir.backend.api.order.model.dto.OrderResponseDTO;
@@ -62,12 +64,12 @@ public class OrderServiceImpl implements OrderService {
 
         // Get cart
         CartEntity cart = cartDAO.findByUserId(currentUser.getId())
-                .orElseThrow(() -> new RuntimeException("Cart not found for user"));
+                .orElseThrow(() -> new ResourceNotFoundException("Cart", "userId", currentUser.getId()));
 
         // Validate cart has items
         List<CartItemEntity> cartItems = cartItemDAO.findByCartId(cart.getId());
         if (cartItems.isEmpty()) {
-            throw new RuntimeException("Cannot place order with empty cart");
+            throw new BadRequestException("Your cart is empty. Please add items before placing an order.");
         }
 
         // Fetch address
@@ -149,7 +151,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Check if order can be cancelled
         if (!order.isCancellable()) {
-            throw new RuntimeException("Order cannot be cancelled. Current status: " + order.getOrderStatus());
+            throw new OrderNotModifiableException(orderId, order.getOrderStatus(), "cancelled");
         }
 
         order.setOrderStatus(OrderStatus.CANCELLED);
@@ -188,7 +190,7 @@ public class OrderServiceImpl implements OrderService {
 
         // Enforce: updates only allowed if order is not shipped/delivered/cancelled/returned
         if (!order.isUpdatable()) {
-            throw new RuntimeException("Order cannot be updated. Current status: " + order.getOrderStatus());
+            throw new OrderNotModifiableException(orderId, order.getOrderStatus(), "updated");
         }
 
         order.setOrderStatus(updateOrderStatusDTO.getOrderStatus());
