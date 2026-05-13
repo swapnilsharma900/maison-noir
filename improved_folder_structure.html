@@ -1,0 +1,66 @@
+
+<style>
+.tree { font-family: var(--font-mono); font-size: 12.5px; line-height: 1.7; color: var(--color-text-primary); padding: 16px 20px; }
+.pkg  { color: #5DCAA5; }
+.cls  { color: #85B7EB; }
+.iface{ color: #9FE1CB; }
+.enm  { color: #EF9F27; }
+.moved{ color: #F09595; text-decoration: line-through; opacity: 0.6; }
+.new  { color: #97C459; }
+.dim  { color: var(--color-text-tertiary); }
+.tag  { font-size: 10px; background: var(--color-background-secondary); border: 1px solid var(--color-border-tertiary); border-radius: 4px; padding: 0 5px; margin-left: 6px; color: var(--color-text-tertiary); vertical-align: middle; font-family: var(--font-sans); }
+.tag.good { border-color: #1D9E75; color: #1D9E75; }
+.tag.fix  { border-color: #D85A30; color: #D85A30; }
+.tag.add  { border-color: #639922; color: #639922; }
+</style>
+<div class="tree">
+in.maisonnoir.backend<br>
+│<br>
+├── <span class="pkg">api/</span><br>
+│   ├── <span class="pkg">account/</span><span class="tag good">good</span><br>
+│   │   ├── <span class="pkg">controller/</span> <span class="dim">AddressController, UserController</span><br>
+│   │   ├── <span class="pkg">mapper/</span> <span class="dim">AddressMapper, UserMapper</span><br>
+│   │   ├── <span class="pkg">model/</span><br>
+│   │   │   ├── <span class="pkg">dto/</span> <span class="dim">AddressDTO, UserRegistrationDTO, UserResponseDTO, UserUpdateDTO</span><br>
+│   │   │   ├── <span class="pkg">entity/</span> <span class="dim">AddressEntity, UserEntity</span><br>
+│   │   │   └── <span class="pkg">enums/</span> <span class="dim">AccountRole</span><br>
+│   │   ├── <span class="pkg">repository/</span> <span class="dim">AddressDAO, UserDAO</span><br>
+│   │   └── <span class="pkg">service/</span> <span class="dim">AddressService, UserService + impls</span><br>
+│   │<br>
+│   ├── <span class="pkg">cart/</span><span class="tag good">good</span><br>
+│   │   ├── <span class="pkg">controller/</span> <span class="dim">CartController</span><br>
+│   │   ├── <span class="pkg">mapper/</span> <span class="dim">CartMapper, <span class="new">CartItemMapper</span></span><span class="tag fix">move from item/</span><br>
+│   │   ├── <span class="pkg">model/</span><br>
+│   │   │   ├── <span class="pkg">dto/</span> <span class="dim">CartResponseDTO, CartItemAddDTO, CartItemResponseDTO, CartItemUpdateDTO</span><br>
+│   │   │   └── <span class="pkg">entity/</span> <span class="dim">CartEntity, <span class="new">CartItemEntity</span></span><span class="tag fix">move from item/</span><br>
+│   │   ├── <span class="pkg">repository/</span> <span class="dim">CartDAO, <span class="new">CartItemDAO</span></span><br>
+│   │   └── <span class="pkg">service/</span> <span class="dim">CartService + impl</span><br>
+│   │<br>
+│   ├── <span class="pkg">order/</span><span class="tag good">good</span><br>
+│   │   ├── <span class="pkg">controller/</span> <span class="dim">OrderController</span><br>
+│   │   ├── <span class="pkg">mapper/</span> <span class="dim">OrderMapper, <span class="new">OrderItemMapper</span></span><span class="tag fix">move from item/</span><br>
+│   │   ├── <span class="pkg">model/</span><br>
+│   │   │   ├── <span class="pkg">dto/</span> <span class="dim">OrderResponseDTO, <span class="new">CreateOrderDTO</span>, UpdateOrderStatusDTO, OrderItemResponseDTO</span><br>
+│   │   │   ├── <span class="pkg">entity/</span> <span class="dim">OrderEntity, <span class="new">OrderItemEntity</span></span><span class="tag fix">move from item/</span><br>
+│   │   │   └── <span class="pkg">enums/</span> <span class="dim">OrderStatus, PaymentStatus</span><br>
+│   │   ├── <span class="pkg">repository/</span> <span class="dim">OrderDAO, <span class="new">OrderItemDAO</span></span><br>
+│   │   └── <span class="pkg">service/</span> <span class="dim">OrderService + impl</span><br>
+│   │<br>
+│   ├── <span class="pkg">product/</span><span class="tag good">good</span><br>
+│   │   ├── <span class="pkg">controller/</span> <span class="dim">ProductController</span><br>
+│   │   ├── <span class="pkg">mapper/</span> <span class="dim">ProductMapper, <span class="new">ItemMapper</span></span><br>
+│   │   ├── <span class="pkg">model/</span><br>
+│   │   │   ├── <span class="pkg">dto/</span> <span class="dim">ProductRequestDTO, ProductResponseDTO, VariantDTO, <span class="new">ItemResponseDTO</span></span><br>
+│   │   │   └── <span class="pkg">entity/</span> <span class="dim">ProductEntity, <span class="new">ItemEntity</span></span><span class="tag fix">move from item/</span><br>
+│   │   ├── <span class="pkg">repository/</span> <span class="dim">ProductDAO, <span class="new">ItemDAO</span></span><br>
+│   │   └── <span class="pkg">service/</span> <span class="dim">ProductService + impl, <span class="new">ItemService + impl</span></span><br>
+│   │<br>
+│   └── <span class="pkg">payment/</span><span class="tag add">add now</span><br>
+│       └── <span class="dim">(placeholder — define domain before wiring PaymentStatus)</span><br>
+│<br>
+└── <span class="pkg">common/</span><span class="tag fix">expand this</span><br>
+    ├── <span class="pkg">exception/</span> <span class="dim">DuplicateResourceException, ResourceNotFoundException, GlobalExceptionHandler</span><br>
+    ├── <span class="pkg">response/</span> <span class="dim">ApiResponse, ErrorResponse</span><span class="tag fix">move from item/</span><br>
+    ├── <span class="pkg">validation/</span> <span class="dim">SafeText, SafeTextValidator</span><span class="tag fix">move from item/</span><br>
+    └── <span class="pkg">dto/</span> <span class="dim"><span class="new">ProductSnapshotDTO</span></span><span class="tag fix">move here — shared by cart &amp; order</span>
+</div>
