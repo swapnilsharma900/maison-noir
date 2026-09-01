@@ -2,6 +2,7 @@ package in.maisonnoir.backend.api.order.service.impl;
 
 import in.maisonnoir.backend.api.address.model.entity.AddressEntity;
 import in.maisonnoir.backend.api.user.model.entity.UserEntity;
+import in.maisonnoir.backend.api.user.model.enums.AccountRole;
 import in.maisonnoir.backend.api.address.repository.AddressDAO;
 import in.maisonnoir.backend.api.user.repository.UserDAO;
 import in.maisonnoir.backend.api.cart.model.entity.CartEntity;
@@ -127,8 +128,9 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity order = orderDAO.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", "id", orderId));
 
-        // Verify order belongs to current user
-        if (!order.getUserId().equals(currentUser.getId())) {
+        // Customers may only view their own orders; admins may view any order
+        boolean isAdmin = currentUser.getRole() == AccountRole.ADMIN;
+        if (!isAdmin && !order.getUserId().equals(currentUser.getId())) {
             throw new ResourceNotFoundException("Order", "id", orderId);
         }
 

@@ -25,4 +25,4 @@ Maison Noir is a luxury men’s fashion e-commerce platform built with Spring Bo
 ## Project Structure & Documentation
 
 - **[Backend Architecture & Setup](Backend/README.md):** Information on the Spring Boot backend, APIs, and how to run the server.
-- **[Database Architecture & Setup](Backend/db/README.md):** Information on our dual-database strategy (MySQL + MongoDB) and seeding scripts.
+- **[Database Architecture & Setup](Backend/src/main/resources/db/README.md):** Information on our dual-database strategy (MySQL + MongoDB) and seeding scripts.

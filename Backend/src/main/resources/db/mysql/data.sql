@@ -51,10 +51,10 @@ INSERT IGNORE INTO carts (user_id, total_amount, updated_at) VALUES
 -- ============================================================
 INSERT IGNORE INTO cart_items (cart_id, variant_id, quantity, snapshot_name, snapshot_image, snapshot_price, variant_label, snapshot_category) VALUES
 -- Rahul's cart (cart_id=2): 2 items
-(2, 'VARIANT_NOIR_TEE_M',      1, 'Noir Classic Tee - M',       'https://placehold.co/400x500/1a1a1a/ffffff?text=Noir+Tee',     2999.00, 'M', 'T-Shirts'),
-(2, 'VARIANT_NOIR_TEE_L',      1, 'Noir Classic Tee - L',       'https://placehold.co/400x500/1a1a1a/ffffff?text=Noir+Tee',     2999.00, 'L', 'T-Shirts'),
+(2, 'VARIANT_NOIR_TEE_M',      1, 'Noir Classic Tee - M',       './Data/Images/product_images/tshirt@maison-noir.png',     2999.00, 'M', 'T-Shirts'),
+(2, 'VARIANT_NOIR_TEE_L',      1, 'Noir Classic Tee - L',       './Data/Images/product_images/tshirt@maison-noir.png',     2999.00, 'L', 'T-Shirts'),
 -- Priya's cart (cart_id=3): 1 item
-(3, 'VARIANT_SHADOW_HOODIE_S', 1, 'Shadow Hoodie - S',          'https://placehold.co/400x500/2d2d2d/ffffff?text=Shadow+Hoodie', 2499.00, 'S', 'Hoodies');
+(3, 'VARIANT_SHADOW_HOODIE_S', 1, 'Shadow Hoodie - S',          './Data/Images/product_images/hoodie@maison-noir.png', 2499.00, 'S', 'Hoodies');
 
 -- ============================================================
 -- 5. ORDERS
@@ -75,14 +75,14 @@ INSERT IGNORE INTO orders (user_id, ship_name, ship_flat, ship_city, ship_pincod
 -- ============================================================
 INSERT IGNORE INTO order_items (order_id, variant_id, quantity, snapshot_name, snapshot_image, snapshot_price, variant_label, snapshot_category) VALUES
 -- Rahul's delivered order (order_id=1)
-(1, 'VARIANT_NOIR_TEE_M',          1, 'Noir Classic Tee - M',       'https://placehold.co/400x500/1a1a1a/ffffff?text=Noir+Tee',           2999.00, 'M',     'T-Shirts'),
-(1, 'VARIANT_MIDNIGHT_CAP',        1, 'Midnight Cap',               'https://placehold.co/400x500/111111/ffffff?text=Midnight+Cap',        1500.00, 'One Size', 'Accessories'),
+(1, 'VARIANT_NOIR_TEE_M',          1, 'Noir Classic Tee - M',       './Data/Images/product_images/tshirt@maison-noir.png',           2999.00, 'M',     'T-Shirts'),
+(1, 'VARIANT_MIDNIGHT_CAP',        1, 'Midnight Cap',               './Data/Images/product_images/midnight_cap@maison-noir.png',        1500.00, 'One Size', 'Accessories'),
 -- Priya's confirmed order (order_id=2)
-(2, 'VARIANT_SHADOW_HOODIE_M',     1, 'Shadow Hoodie - M',          'https://placehold.co/400x500/2d2d2d/ffffff?text=Shadow+Hoodie',       2499.00, 'M',     'Hoodies'),
-(2, 'VARIANT_SHADOW_HOODIE_L',     1, 'Shadow Hoodie - L',          'https://placehold.co/400x500/2d2d2d/ffffff?text=Shadow+Hoodie',       2499.00, 'L',     'Hoodies'),
-(2, 'VARIANT_NOIR_TEE_S',          1, 'Noir Classic Tee - S',       'https://placehold.co/400x500/1a1a1a/ffffff?text=Noir+Tee',           2499.00, 'S',     'T-Shirts'),
+(2, 'VARIANT_SHADOW_HOODIE_M',     1, 'Shadow Hoodie - M',          './Data/Images/product_images/hoodie@maison-noir.png',       2499.00, 'M',     'Hoodies'),
+(2, 'VARIANT_SHADOW_HOODIE_L',     1, 'Shadow Hoodie - L',          './Data/Images/product_images/hoodie@maison-noir.png',       2499.00, 'L',     'Hoodies'),
+(2, 'VARIANT_NOIR_TEE_S',          1, 'Noir Classic Tee - S',       './Data/Images/product_images/tshirt@maison-noir.png',           2499.00, 'S',     'T-Shirts'),
 -- Arjun's pending order (order_id=3)
-(3, 'VARIANT_NOIR_TEE_L',          1, 'Noir Classic Tee - L',       'https://placehold.co/400x500/1a1a1a/ffffff?text=Noir+Tee',           2999.00, 'L',     'T-Shirts'),
+(3, 'VARIANT_NOIR_TEE_L',          1, 'Noir Classic Tee - L',       './Data/Images/product_images/tshirt@maison-noir.png',           2999.00, 'L',     'T-Shirts'),
 -- Rahul's cancelled order (order_id=4)
-(4, 'VARIANT_ECLIPSE_JOGGER_M',    1, 'Eclipse Jogger - M',         'https://placehold.co/400x500/333333/ffffff?text=Eclipse+Jogger',      2499.00, 'M',     'Joggers'),
-(4, 'VARIANT_ECLIPSE_JOGGER_L',    1, 'Eclipse Jogger - L',         'https://placehold.co/400x500/333333/ffffff?text=Eclipse+Jogger',      2499.00, 'L',     'Joggers');
+(4, 'VARIANT_ECLIPSE_JOGGER_M',    1, 'Eclipse Jogger - M',         './Data/Images/product_images/jogger@maison-noir.png',      2499.00, 'M',     'Joggers'),
+(4, 'VARIANT_ECLIPSE_JOGGER_L',    1, 'Eclipse Jogger - L',         './Data/Images/product_images/jogger@maison-noir.png',      2499.00, 'L',     'Joggers');

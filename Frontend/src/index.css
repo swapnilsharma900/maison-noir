@@ -1,70 +1,129 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+@import 'tailwindcss';
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* Backgrounds */
+  --color-noir-page: #0a0a0b;
+  --color-noir-surface: #121214;
+  --color-noir-elevated: #1a1a1e;
+  --color-noir-border: #27272d;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* Brand gold */
+  --color-gold: #c8a84e;
+  --color-gold-hover: #d4b65e;
+  --color-gold-dim: #7a622e;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Text */
+  --color-text-primary: #e4e4e7;
+  --color-text-muted: #71717a;
+  --color-text-heading: #ffffff;
+
+  /* Semantic */
+  --color-error: #ef4444;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+
+  /* Typography */
+  --font-sans: 'Inter', sans-serif, opensans, system-ui;
+
+  /* Spacing */
+  --header-height: 4rem;
+  --header-height-mobile: 3.5rem;
+  --layout-main-offset: var(--header-height-mobile);
+  --container-max: 1280px;
+  --container-padding: 1rem;
+  --tagline-tracking: 0.167em;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+@media (min-width: 1024px) {
+  :root {
+    --layout-main-offset: var(--header-height);
+  }
 }
-a:hover {
-  color: #535bf2;
+
+html.admin-browse {
+  --layout-main-offset: calc(var(--header-height-mobile) + 2.5rem);
+}
+
+@media (min-width: 1024px) {
+  html.admin-browse {
+    --layout-main-offset: calc(var(--header-height) + 2.5rem);
+  }
+}
+
+@theme {
+  --color-noir-page: var(--color-noir-page);
+  --color-noir-surface: var(--color-noir-surface);
+  --color-noir-elevated: var(--color-noir-elevated);
+  --color-noir-border: var(--color-noir-border);
+  --color-gold: var(--color-gold);
+  --color-gold-hover: var(--color-gold-hover);
+  --color-gold-dim: var(--color-gold-dim);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-heading: var(--color-text-heading);
+  --color-error: var(--color-error);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --font-sans: var(--font-sans);
+}
+
+/* Base resets */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
+  background-color: var(--color-noir-page);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Dark scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+::-webkit-scrollbar-track {
+  background: var(--color-noir-page);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+::-webkit-scrollbar-thumb {
+  background: var(--color-noir-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Selection */
+::selection {
+  background: var(--color-gold-dim);
+  color: var(--color-text-heading);
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* Image defaults */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Link resets */
+a {
+  color: inherit;
+  text-decoration: none;
 }

@@ -1,12 +1,14 @@
 # MaisonNoir Database Scripts
 
+Scripts live at **`Backend/src/main/resources/db/`** (on the Spring Boot classpath as `classpath:db/...`).
+
 ## Directory Structure
 
 ```
-db/
+Backend/src/main/resources/db/
 ├── mysql/
 │   ├── schema.sql    # MySQL table definitions (DDL)
-│   ├── data.sql      # MySQL seed data (DML)
+│   ├── data.sql      # MySQL seed data (DML) — also loaded on app startup
 │   └── clear.sql     # Truncate all MySQL tables
 ├── mongodb/
 │   ├── schema.js     # MongoDB collection validation + indexes
@@ -24,34 +26,67 @@ db/
 
 ## How to Reset & Seed
 
-### 1. Clear existing data
-```powershell
-# MySQL
-Get-Content db\mysql\clear.sql | mysql -u root -p maison_noir
+Run commands from the **repository root** (`maison-noir/`).
 
-# MongoDB
-mongosh --file db\mongodb\clear.js
+### 1. Clear existing data
+
+```powershell
+# Windows — MySQL
+Get-Content Backend\src\main\resources\db\mysql\clear.sql | mysql -u root -p maison_noir
+
+# Windows — MongoDB
+mongosh --file Backend\src\main\resources\db\mongodb\clear.js
+```
+
+```bash
+# Linux/macOS — MySQL
+mysql -u root -p maison_noir < Backend/src/main/resources/db/mysql/clear.sql
+
+# Linux/macOS — MongoDB
+mongosh --file Backend/src/main/resources/db/mongodb/clear.js
 ```
 
 ### 2. Seed fresh data
-```powershell
-# MySQL (run first)
-Get-Content db\mysql\data.sql | mysql -u root -p maison_noir
 
-# MongoDB (run second)
-mongosh --file db\mongodb\data.js
+```powershell
+# Windows — MySQL (run first)
+Get-Content Backend\src\main\resources\db\mysql\data.sql | mysql -u root -p maison_noir
+
+# Windows — MongoDB (run second)
+mongosh --file Backend\src\main\resources\db\mongodb\data.js
+```
+
+```bash
+# Linux/macOS — MySQL (run first)
+mysql -u root -p maison_noir < Backend/src/main/resources/db/mysql/data.sql
+
+# Linux/macOS — MongoDB (run second)
+mongosh --file Backend/src/main/resources/db/mongodb/data.js
 ```
 
 ### 3. Sync variant IDs
+
 After seeding MongoDB, the `variant_id` values in MySQL `cart_items` and `order_items` tables use **placeholder strings** (e.g. `VARIANT_NOIR_TEE_M`). These need to be updated with the actual MongoDB `_id` values from the `items` collection.
 
 You can get the MongoDB IDs with:
+
 ```powershell
 mongosh --eval "use('maison_noir'); db.items.find({}, {_id:1, name:1}).forEach(doc => print(doc._id + ' => ' + doc.name));"
 ```
 
 Then update MySQL accordingly.
 
+## Automatic MySQL seed on startup
+
+`Backend/src/main/resources/application.properties` configures:
+
+```properties
+spring.sql.init.mode=always
+spring.sql.init.data-locations=classpath:db/mysql/data.sql
+spring.jpa.defer-datasource-initialization=true
+```
+
+Hibernate applies schema first (`ddl-auto=update`), then `data.sql` runs from this directory on the classpath.
 
 ## Important Notes
 
