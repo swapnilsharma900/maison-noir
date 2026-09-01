@@ -1,0 +1,29 @@
+spring.application.name=MaisonNoir
+
+# mysql DB Configurations
+spring.datasource.url=jdbc:mysql://localhost:3306/maison_noir
+spring.datasource.username=root
+spring.datasource.password=Swap@mysql
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+
+# mongo DB Configurations
+spring.data.mongodb.host=localhost
+spring.data.mongodb.port=27017
+spring.data.mongodb.database=maison_noir
+
+# preventing internal errors from leaking
+server.error.include-message=never
+server.error.include-stacktrace=never
+server.error.include-binding-errors=never
+
+# SQL Data Initialization
+spring.sql.init.mode=always
+spring.sql.init.data-locations=classpath:db/mysql/data.sql
+spring.jpa.defer-datasource-initialization=true
+
+# JWT Configuration
+jwt.secret=TW9pc29uTm9pclNlY3JldEtleUZvckpXVEF1dGhlbnRpY2F0aW9uMjAyNg==
+jwt.expiration=86400000

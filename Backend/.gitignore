@@ -1,8 +1,25 @@
+# ============================================
+# COMPILED FILES
+# ============================================
 HELP.md
-target/
+*.class
+*.jar
 .mvn/wrapper/maven-wrapper.jar
+*.war
+*.ear
+target/
 !**/src/main/**/target/
 !**/src/test/**/target/
+build/
+out/
+
+# ============================================
+# IDE FILES
+# ============================================
+
+### Vim ###
+*.swp
+*.swo
 
 ### STS ###
 .apt_generated
@@ -10,11 +27,13 @@ target/
 .factorypath
 .project
 .settings
+.settings/
 .springBeans
 .sts4-cache
 
 ### IntelliJ IDEA ###
 .idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -25,9 +44,79 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
+
+# ============================================
+# LOGS
+# ============================================
+*.log
+logs/
+log/
+
+# ============================================
+# DATABASE
+# ============================================
+*.db
+*.sqlite
+*.h2.db
+*.mv.db
+*.trace.db
+
+# ============================================
+# TEST FILES - EXCLUDE THESE! ⭐
+# ============================================
+src/test/
+**/test/
+**/tests/
+test-output/
+test-reports/
+test-results/
+
+# ============================================
+# ENVIRONMENT & CONFIG
+# ============================================
+*.properties.local
+*.yml.local
+application-local.properties
+application-dev.properties  # Optional - if it contains secrets
+application-prod.properties  # DEFINITELY exclude!
+.env
+.env.*
+
+# ============================================
+# OS FILES
+# ============================================
+.DS_Store
+Thumbs.db
+*.tmp
+
+# ============================================
+# BUILD TOOLS
+# ============================================
+.gradle/
+gradle-app.setting
+!gradle-wrapper.jar
+
+.mvn/
+mvnw
+mvnw.cmd
+
+# ============================================
+# NODE (if using frontend)
+# ============================================
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# ============================================
+# OTHER
+# ============================================
+*.zip
+*.tar.gz
+*.rar
+*.7z
