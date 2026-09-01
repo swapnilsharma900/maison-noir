@@ -120,3 +120,12 @@ yarn-error.log
 *.tar.gz
 *.rar
 *.7z
+
+# ============================================
+# OTHER FILES AND DIRECTORIES
+# ============================================
+application-properties.txt
+improved_folder_structure.html
+schema.html
+suggested_schema.html
+Data/
