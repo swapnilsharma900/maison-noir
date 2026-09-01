@@ -1,0 +1,9 @@
+# .dockerignore
+.git
+.gitignore
+.gitattributes
+README.md
+node_modules/
+frontend/
+*.md
+*.log
