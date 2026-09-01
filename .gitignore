@@ -7,7 +7,7 @@ HELP.md
 .mvn/wrapper/maven-wrapper.jar
 *.war
 *.ear
-target/
+Backend/target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 build/
@@ -125,6 +125,7 @@ yarn-error.log
 # OTHER FILES AND DIRECTORIES
 # ============================================
 application-properties.txt
+atlas-credentials.env
 improved_folder_structure.html
 schema.html
 suggested_schema.html
