@@ -20,7 +20,7 @@ async function request(endpoint, options = {}) {
     });
   } catch {
     throw new Error(
-      'Cannot reach the server. Start the backend on http://localhost:8080 and ensure MySQL/MongoDB are running.'
+      `Cannot reach the server. Start the backend on ${BASE_URL} and ensure MySQL/MongoDB are running.`
     );
   }
 
