@@ -8,4 +8,18 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  base: '/', // Set the base path for your app
+  server: {
+    port: 3000, // Set the development server port
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_URL || 'http://localhost:8080',
+        changeOrigin: true,
+      }
+    }
+  },
+  build: {
+    outDir: 'dist', // Set the output directory for the build
+    sourcemap: true, // Generate source maps for debugging
+  },
 })
