@@ -7,6 +7,11 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist']),
   {
+    env: {
+      browser: true,
+      es2021: true,
+      node: true, // Add this line to recognize 'process'
+    },
     files: ['**/*.{js,jsx}'],
     extends: [
       js.configs.recommended,

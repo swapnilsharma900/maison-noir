@@ -18,7 +18,7 @@ This directory contains the backend application for the Maison Noir e-commerce p
 
 ### 1. Database Initialization
 Before starting the backend, ensure your MySQL and MongoDB instances are running and properly seeded.
-Please refer to the [Database Documentation](src/test/java/in/maisonnoir/backend/resources/db/README.md) (`src/test/java/in/maisonnoir/backend/resources/db/README.md`) for detailed instructions on setting up and seeding the databases.
+Please refer to the [Database Documentation](src/main/resources/db/README.md) (`src/main/resources/db/README.md`) for detailed instructions on setting up and seeding the databases.
 
 ### 2. Configuration
 Check `src/main/resources/application.properties` (or your active profile config) to ensure your database connection URLs, usernames, and passwords are correct. Also, ensure your JWT secret key is configured.
