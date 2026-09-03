@@ -93,8 +93,7 @@ test-results/
 *.yml.local
 *.local
 application-local.properties
-application-dev.properties  # Optional - if it contains secrets
-application-prod.properties  # DEFINITELY exclude!
+application-dev.properties
 .env
 .env.*
 
@@ -140,12 +139,10 @@ lerna-debug.log*
 # ============================================
 # OTHER FILES AND DIRECTORIES
 # ============================================
-application-properties.txt
 atlas-credentials.env
 improved_folder_structure.html
 schema.html
 suggested_schema.html
-Data/
 frontend/.env.development
 frontend/.env.production
 
