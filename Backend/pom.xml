@@ -162,7 +162,7 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>1.15.0</version> <!-- Updated to latest stable version -->
                 <configuration>
-                    <workingDirectory>../frontend</workingDirectory> <!-- Points to your frontend folder -->
+                    <workingDirectory>../Frontend</workingDirectory> <!-- Points to your frontend folder -->
                     <installDirectory>target</installDirectory>
                 </configuration>
                 <executions>
