@@ -8,6 +8,7 @@ RUN mvn dependency:go-offline
 
 # Copy source code
 COPY Backend/src ./src
+COPY frontend ./frontend
 RUN mvn clean package -DskipTests
 
 # Run stage
