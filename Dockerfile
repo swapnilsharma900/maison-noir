@@ -1,7 +1,7 @@
 # Stage 1: Build Frontend
 FROM node:18-slim AS frontend-build
 
-WORKDIR /app/frontend
+WORKDIR /app/Frontend
 COPY Frontend/package*.json ./
 RUN npm install
 COPY Frontend/ ./
@@ -21,7 +21,7 @@ COPY Backend/src ./src
 
 # ✅ Copy frontend build directly to src/main/resources/static
 # This way Maven doesn't need to copy anything
-COPY --from=frontend-build /app/frontend/build ./src/main/resources/static
+COPY --from=frontend-build /app/Frontend/build ./src/main/resources/static
 
 # Build Backend
 RUN mvn clean package -DskipTests
