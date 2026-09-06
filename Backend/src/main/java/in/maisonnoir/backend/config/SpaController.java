@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class SpaController {
 
-    @RequestMapping(value = {"/", "/{path:[^\\.]*}" })
-    public String forwardToIndex(HttpServletRequest request) {
-        System.out.println("🔄 Forwarding to index.html for path: " + request.getRequestURI());
+    @RequestMapping(value = {"/", "/{path:[^\\.]*"})
+    public String forwardToIndex() {
         return "forward:/index.html";
     }
 }
