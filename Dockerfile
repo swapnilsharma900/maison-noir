@@ -21,7 +21,7 @@ COPY Backend/src ./src
 
 # ✅ Copy frontend build directly to src/main/resources/static
 # This way Maven doesn't need to copy anything
-COPY --from=frontend-build /app/Frontend/build ./src/main/resources/static
+COPY --from=frontend-build /app/Frontend/dist ./src/main/resources/static
 
 # Build Backend
 RUN mvn clean package -DskipTests
