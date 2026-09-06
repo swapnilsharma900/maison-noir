@@ -10,7 +10,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const isAuthenticated = !!token && !!user;
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = user?.role === 'ADMIN' ||
+                          user?.role === 'ROLE_ADMIN' ||
+                          user?.role === 'ROLE_ ADMIN';
 
   const fetchUser = useCallback(async () => {
     if (!token) {
