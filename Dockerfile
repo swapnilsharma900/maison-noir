@@ -1,6 +1,9 @@
 # Stage 1: Build Frontend
 FROM node:18-slim AS frontend-build
 
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 WORKDIR /app/Frontend
 COPY Frontend/package*.json ./
 RUN npm install
