@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const BASE_URL = 'https://maison-noir-43gw.onrender.com/' || 'http://localhost:8080';
 
 async function request(endpoint, options = {}) {
   console.log('\n\n\nAPI Base URL:', BASE_URL);

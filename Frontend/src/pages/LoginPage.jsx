@@ -14,9 +14,7 @@ export default function LoginPage() {
   }, [loading, isAuthenticated, isAdmin, navigate]);
 
   const handleLogin = async (data) => {
-    console.log("\n\n\nENTERED ROLE IS: "+data.role);
     const auth = await login(data.email, data.password);
-    console.log("\n\n\nauth.ROLE IS: "+auth.role);
     navigate(auth?.role === 'ADMIN' ? '/admin' : '/', { replace: true });
   };
 
