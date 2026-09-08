@@ -38,7 +38,6 @@ export function AuthProvider({ children }) {
   }, [fetchUser]);
 
   const login = async (email, password) => {
-    console.log('🔐 AuthContext.login called with:', email);
     const data = await authService.login(email, password);
     localStorage.setItem('token', data.token);
     setToken(data.token);
