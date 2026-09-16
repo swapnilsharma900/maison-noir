@@ -94,7 +94,7 @@ Create a `.env` file in the `Frontend/` directory (or set in Render’s dash
 
 `VITE_API_URL = http://localhost:8080   # or your backend URL`
 
-Refer to [Frontend Documentation]() for detailed setup
+Refer to [Frontend Documentation](Frontend/README.md) for detailed setup
 
 ### 4. Build and Run the Backend
 
