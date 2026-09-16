@@ -1,51 +1,165 @@
 # Maison Noir Backend
 
-This directory contains the backend application for the Maison Noir e-commerce platform.
+This directory contains the Spring Boot backend application for the Maison Noir e‑commerce platform.
 
-## Architecture & Technologies
+---
 
-- **Framework:** Spring Boot 3.5.x
-- **Language:** Java 24
-- **Databases:**
-  - **MySQL:** Relational data (Users, Addresses, Carts, Orders)
-  - **MongoDB:** Document data (Product Catalog & Variants)
-- **Security:** Spring Security with JWT (JSON Web Token) Authentication
-- **API Documentation:** SpringDoc OpenAPI (Swagger UI)
-- **Data Access:** Spring Data JPA (Hibernate), Spring Data MongoDB
-- **Build Tool:** Maven
+## 🏗️ Architecture Overview
 
-## Setup & Running Locally
+The backend is built using a layered architecture:
 
-### 1. Database Initialization
-Before starting the backend, ensure your MySQL and MongoDB instances are running and properly seeded.
-Please refer to the [Database Documentation](src/main/resources/db/README.md) (`src/main/resources/db/README.md`) for detailed instructions on setting up and seeding the databases.
+- **Controller** – REST endpoints (Spring MVC)
+- **Service** – Business logic
+- **Repository** – Data access (Spring Data JPA / MongoDB)
+- **Security** – JWT authentication & role‑based authorization
 
-### 2. Configuration
-Check `src/main/resources/application.properties` (or your active profile config) to ensure your database connection URLs, usernames, and passwords are correct. Also, ensure your JWT secret key is configured.
+### Database Strategy
 
-### 3. Build and Run
-You can run the application from the root of the `Backend` directory using the included Maven wrapper:
+- **MySQL** – Stores users, addresses, carts, orders (relational data)
+- **MongoDB** – Stores product catalog and variants (document data)
 
-```powershell
-# Windows
-.\mvnw spring-boot:run
+This hybrid approach optimizes for both structured transactions and flexible product schemas.
 
-# Linux/macOS
-./mvnw spring-boot:run
+---
+
+## 🛠️ Technologies
+
+- **Framework**: Spring Boot 3.5.x
+- **Language**: Java 24
+- **Security**: Spring Security 6, JWT (JJWT)
+- **Data Access**: Spring Data JPA (Hibernate), Spring Data MongoDB
+- **API Documentation**: SpringDoc OpenAPI (Swagger UI)
+- **Build Tool**: Maven (wrapper included)
+- **Database Drivers**: MySQL Connector/J, MongoDB Java Driver
+
+---
+
+## 📦 Prerequisites
+
+- Java 24 (or 21+)
+- Maven (or use the wrapper)
+- MySQL 8.0+ & MongoDB 6.0+ (local or cloud)
+
+---
+
+## ⚙️ Configuration
+
+All configuration is in `src/main/resources/application.properties` (or `application-{profile}.properties`). Key settings:
+
+```properties
+# Server
+server.port=${PORT:8080}
+
+# MySQL
+spring.datasource.url=${MYSQL_URL:jdbc:mysql://localhost:3306/maison_noir}
+spring.datasource.username=${MYSQL_USER:root}
+spring.datasource.password=${MYSQL_PASSWORD:}
+
+# MongoDB
+spring.data.mongodb.uri=${MONGODB_URI:mongodb://localhost:27017/maison_noir}
+
+# JWT
+jwt.secret=${JWT_SECRET:your_jwt_secret_key}
+jwt.expiration=${JWT_EXPIRATION:86400000}
 ```
 
-Once the application is running, the REST API will be available. You can interact with the API and view the documentation via Swagger UI, typically accessible at:
-`http://localhost:8080/swagger-ui.html`
+Override any setting using environment variables – this is especially useful for deployment.
 
-## Default Credentials
+---
 
-For local development and testing, the seeded database includes the following default users:
+## 🚀 Running the Backend
 
-| Role | Email | Password |
-|------|-------|----------|
-| **ADMIN** | `admin@maisonnoir.in` | `Admin@123` |
-| CUSTOMER | `rahul.sharma@gmail.com` | `Customer@123` |
-| CUSTOMER | `priya.patel@gmail.com` | `Customer@123` |
-| CUSTOMER | `arjun.kumar@gmail.com` | `Customer@123` |
+### Using Maven Wrapper
 
-> **Note:** Passwords in the database are BCrypt-encoded. Use the plain-text passwords listed above for login through the API or Swagger UI.
+```bash
+# Linux/macOS
+./mvnw clean spring-boot:run
+
+# Windows
+.\mvnw clean spring-boot:run 
+```
+
+### Build a JAR and Run
+
+```bash
+./mvnw clean package
+java -jar target/Backend-*.jar
+```
+
+---
+
+## 🧪 API Documentation
+
+Once running, visit Swagger UI:
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
+You can also download the OpenAPI spec at:
+
+```text
+http://localhost:8080/v3/api-docs
+```
+
+---
+
+## 🔐 Security & Authentication
+
+The API uses **JWT tokens** for stateless authentication. To access protected endpoints, include the token in the `Authorization` header:
+
+```text
+Authorization: Bearer <jwt_token>
+```
+
+Public endpoints (e.g., login, register, product listing) are exempt.
+
+**Roles:**
+
+- **ROLE_ADMIN** – Full access to admin endpoints
+
+- **ROLE_CUSTOMER** – Standard user permissions
+
+---
+
+## 🗄️ Database Schema
+
+- MySQL schema is defined via Hibernate DDL (`ddl-auto=update`) – see `src/main/resources/db/mysql/schema.sql` for reference.
+
+- MongoDB collections are validated by `src/main/resources/db/mongodb/schema.js`.
+
+See the [Database README](src/main/resources/db/README.md) for seeding instructions.
+
+---
+
+## 🧹 Testing
+
+Run unit and integration tests:
+
+```bash
+./mvnw test
+```
+
+For test coverage, use:
+
+```bash
+
+```
+
+---
+
+## 📦 Deployment
+
+The backend is deployed on **Render** as a Docker container. The `Dockerfile` at the project root builds both frontend and backend into a single image. Ensure environment variables (database URLs, JWT secret) are set in Render’s dashboard.
+
+---
+
+## 🤝 Contributing
+
+Follow the same guidelines as the main project. Please write unit tests for new features.
+
+---
+
+## 📄 License
+
+Proprietary – all rights reserved.
