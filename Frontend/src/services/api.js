@@ -3,8 +3,12 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 async function request(endpoint, options = {}) {
   const token = localStorage.getItem('token');
 
+  const isFormData = options.body instanceof FormData;
+
   const headers = {
-    'Content-Type': 'application/json',
+    // Only set JSON content-type when we're not sending FormData.
+    // For FormData, the browser sets Content-Type with the correct boundary.
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...options.headers,
   };
 
@@ -20,7 +24,7 @@ async function request(endpoint, options = {}) {
     });
   } catch {
     throw new Error(
-      `Cannot reach the server. Start the backend on ${BASE_URL} and ensure MySQL/MongoDB are running.`
+        `Cannot reach the server. Start the backend on ${BASE_URL} and ensure MySQL/MongoDB are running.`
     );
   }
 
@@ -47,6 +51,7 @@ async function request(endpoint, options = {}) {
     throw new Error(json.message || 'Request failed');
   }
 
+  // Returns the unwrapped `data` field from the ApiResponse wrapper.
   return json.data;
 }
 
@@ -56,4 +61,13 @@ export const api = {
   put: (endpoint, body) => request(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
   patch: (endpoint, body) => request(endpoint, { method: 'PATCH', body: JSON.stringify(body) }),
   delete: (endpoint) => request(endpoint, { method: 'DELETE' }),
+
+  /**
+   * Upload a file (or FormData) to the server.
+   * Do NOT set Content-Type manually — the browser will set it with the boundary.
+   *
+   * @param {string} endpoint - API endpoint (e.g., '/api/admin/products/upload-image')
+   * @param {FormData} formData - FormData containing the file(s)
+   */
+  upload: (endpoint, formData) => request(endpoint, { method: 'POST', body: formData }),
 };

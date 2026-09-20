@@ -10,7 +10,7 @@ use("maison_noir");
 // Local demo images (repo: Data/Images/product_images/, served by Vite at /Data/Images/product_images/)
 const IMG = "./Data/product_images/";
 const PRODUCT_IMAGES = {
-  tee: IMG + "tshirt@maison-noir.png",
+  tee: "https://res.cloudinary.com/euf77svj/image/upload/v1789706702/maison-noir/products/mtreybpgcymy8td112vq.jpg",
   hoodie: IMG + "hoodie@maison-noir.png",
   jogger: IMG + "jogger@maison-noir.png",
   cap: IMG + "midnight_cap@maison-noir.png",
