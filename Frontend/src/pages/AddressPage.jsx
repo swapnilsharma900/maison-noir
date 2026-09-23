@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { addressService } from '../services/address';
+import {useEffect, useState} from 'react';
+import {addressService} from '../services/address';
 import Container from '../components/ui/Container';
 import AddressForm from '../components/ui/AddressForm';
 import Spinner from '../components/ui/Spinner';
-import { toast } from '../components/ui/Toast';
+import {toast} from '../components/ui/Toast';
 
 export default function AddressPage() {
   const [address, setAddress] = useState(null);

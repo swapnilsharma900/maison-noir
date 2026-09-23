@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
-import { SITE } from '../../config/site';
-import { useAuth } from '../../hooks/useAuth';
-import { useCart } from '../../hooks/useCart';
+import {useEffect, useState} from 'react';
+import {Link, NavLink} from 'react-router-dom';
+import {SITE} from '../../config/site';
+import {useAuth} from '../../hooks/useAuth';
+import {useCart} from '../../hooks/useCart';
 import Button from '../ui/Button';
 import AdminStoreBanner from '../admin/AdminStoreBanner';
 

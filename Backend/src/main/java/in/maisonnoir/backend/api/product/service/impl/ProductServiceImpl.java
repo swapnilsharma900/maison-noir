@@ -2,14 +2,14 @@ package in.maisonnoir.backend.api.product.service.impl;
 
 import in.maisonnoir.backend.api.common.exception.DuplicateResourceException;
 import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
+import in.maisonnoir.backend.api.product.mapper.ProductMapper;
 import in.maisonnoir.backend.api.product.model.dto.ProductRequestDTO;
 import in.maisonnoir.backend.api.product.model.dto.ProductResponseDTO;
 import in.maisonnoir.backend.api.product.model.dto.VariantItemDTO;
-import in.maisonnoir.backend.api.product.repository.ProductDAO;
-import in.maisonnoir.backend.api.product.repository.ProductVariantDAO;
-import in.maisonnoir.backend.api.product.mapper.ProductMapper;
 import in.maisonnoir.backend.api.product.model.entity.ProductEntity;
 import in.maisonnoir.backend.api.product.model.entity.ProductVariantEntity;
+import in.maisonnoir.backend.api.product.repository.ProductDAO;
+import in.maisonnoir.backend.api.product.repository.ProductVariantDAO;
 import in.maisonnoir.backend.api.product.service.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

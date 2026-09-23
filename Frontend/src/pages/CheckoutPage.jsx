@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useCart } from '../hooks/useCart';
-import { useAuth } from '../hooks/useAuth';
-import { useAdminBrowseGuard } from '../hooks/useAdminBrowseGuard';
-import { ordersService } from '../services/orders';
-import { addressService } from '../services/address';
+import {useEffect, useState} from 'react';
+import {Link, useNavigate} from 'react-router-dom';
+import {useCart} from '../hooks/useCart';
+import {useAuth} from '../hooks/useAuth';
+import {useAdminBrowseGuard} from '../hooks/useAdminBrowseGuard';
+import {ordersService} from '../services/orders';
+import {addressService} from '../services/address';
 import Container from '../components/ui/Container';
 import Button from '../components/ui/Button';
 import Spinner from '../components/ui/Spinner';
 import EmptyState from '../components/ui/EmptyState';
-import { toast } from '../components/ui/Toast';
-import { SITE } from '../config/site';
-import { resolveProductImage } from '../utils/images';
+import {toast} from '../components/ui/Toast';
+import {SITE} from '../config/site';
+import {resolveProductImage} from '../utils/images';
 
 export default function CheckoutPage() {
   useAdminBrowseGuard();

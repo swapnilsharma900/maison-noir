@@ -1,15 +1,14 @@
-import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useCart } from '../hooks/useCart';
-import { useAuth } from '../hooks/useAuth';
-import { useAdminBrowseGuard } from '../hooks/useAdminBrowseGuard';
+import {useEffect} from 'react';
+import {Link} from 'react-router-dom';
+import {useCart} from '../hooks/useCart';
+import {useAuth} from '../hooks/useAuth';
+import {useAdminBrowseGuard} from '../hooks/useAdminBrowseGuard';
 import Container from '../components/ui/Container';
 import Button from '../components/ui/Button';
 import Spinner from '../components/ui/Spinner';
 import EmptyState from '../components/ui/EmptyState';
-import { toast } from '../components/ui/Toast';
-import { SITE } from '../config/site';
-import { resolveProductImage } from '../utils/images';
+import {toast} from '../components/ui/Toast';
+import {resolveProductImage} from '../utils/images';
 
 export default function CartPage() {
   useAdminBrowseGuard();

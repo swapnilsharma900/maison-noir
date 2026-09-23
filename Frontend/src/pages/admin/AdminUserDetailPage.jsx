@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { userService } from '../../services/user';
-import { ordersService } from '../../services/orders';
-import { useAuth } from '../../hooks/useAuth';
+import {useEffect, useState} from 'react';
+import {Link, useNavigate, useParams} from 'react-router-dom';
+import {userService} from '../../services/user';
+import {ordersService} from '../../services/orders';
+import {useAuth} from '../../hooks/useAuth';
 import Spinner from '../../components/ui/Spinner';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
-import { toast } from '../../components/ui/Toast';
-import { SITE } from '../../config/site';
+import {toast} from '../../components/ui/Toast';
+import {SITE} from '../../config/site';
 
 const statusBadgeVariant = {
   PENDING: 'warning',

@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import Badge from './Badge';
-import { resolveProductImage } from '../../utils/images';
+import {resolveProductImage} from '../../utils/images';
 
 export default function ProductCard({ product }) {
   const image = resolveProductImage(product.images?.[0]);

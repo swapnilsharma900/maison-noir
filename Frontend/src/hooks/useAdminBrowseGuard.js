@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from './useAuth';
-import { toast } from '../components/ui/Toast';
+import {useEffect} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {useAuth} from './useAuth';
+import {toast} from '../components/ui/Toast';
 
 export function useAdminBrowseGuard() {
   const { isAdmin } = useAuth();

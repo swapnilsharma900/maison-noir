@@ -1,6 +1,6 @@
-import { createContext, useState, useCallback, useContext, useMemo } from 'react';
-import { cartService } from '../services/cart';
-import { AuthContext } from './AuthContext';
+import {createContext, useCallback, useContext, useMemo, useState} from 'react';
+import {cartService} from '../services/cart';
+import {AuthContext} from './AuthContext';
 
 export const CartContext = createContext(null);
 

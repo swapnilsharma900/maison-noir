@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import {useState} from 'react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
-import { api } from '../../services/api.js'; // adjust path to your api client
+import {api} from '../../services/api.js'; // adjust path to your api client
 
 const emptyVariantOption = () => ({ label: '', values: [''] });
 const emptyVariantItem = () => ({

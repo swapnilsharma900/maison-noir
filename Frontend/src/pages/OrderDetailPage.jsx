@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ordersService } from '../services/orders';
+import {useEffect, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {ordersService} from '../services/orders';
 import Container from '../components/ui/Container';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
 import Breadcrumb from '../components/ui/Breadcrumb';
-import { toast } from '../components/ui/Toast';
-import { SITE } from '../config/site';
-import { resolveProductImage } from '../utils/images';
+import {toast} from '../components/ui/Toast';
+import {SITE} from '../config/site';
+import {resolveProductImage} from '../utils/images';
 
 const statusBadgeVariant = {
   PENDING: 'warning',

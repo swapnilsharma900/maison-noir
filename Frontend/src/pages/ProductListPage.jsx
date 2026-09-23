@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { productsService } from '../services/products';
+import {useEffect, useState} from 'react';
+import {useParams, useSearchParams} from 'react-router-dom';
+import {productsService} from '../services/products';
 import Container from '../components/ui/Container';
 import Section from '../components/ui/Section';
 import Input from '../components/ui/Input';
 import Spinner from '../components/ui/Spinner';
 import ProductCard from '../components/ui/ProductCard';
 import EmptyState from '../components/ui/EmptyState';
-import { SITE } from '../config/site';
-import { toast } from '../components/ui/Toast';
+import {SITE} from '../config/site';
+import {toast} from '../components/ui/Toast';
 
 const PRODUCT_CATEGORIES = SITE.categories.filter((cat) => cat.key);
 

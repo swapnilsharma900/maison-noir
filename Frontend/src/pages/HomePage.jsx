@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { SITE } from '../config/site';
-import { productsService } from '../services/products';
+import {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
+import {SITE} from '../config/site';
+import {productsService} from '../services/products';
 import Container from '../components/ui/Container';
 import Section from '../components/ui/Section';
 import Button from '../components/ui/Button';
 import Spinner from '../components/ui/Spinner';
 import ProductCard from '../components/ui/ProductCard';
-import { toast } from '../components/ui/Toast';
+import {toast} from '../components/ui/Toast';
 
 export default function HomePage() {
   const [featured, setFeatured] = useState([]);

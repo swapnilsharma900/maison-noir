@@ -1,7 +1,5 @@
 package in.maisonnoir.backend.api.cart.service.impl;
 
-import in.maisonnoir.backend.api.user.model.entity.UserEntity;
-import in.maisonnoir.backend.api.user.repository.UserDAO;
 import in.maisonnoir.backend.api.cart.mapper.CartItemMapper;
 import in.maisonnoir.backend.api.cart.mapper.CartMapper;
 import in.maisonnoir.backend.api.cart.model.dto.CartItemAddDTO;
@@ -15,6 +13,8 @@ import in.maisonnoir.backend.api.cart.service.CartService;
 import in.maisonnoir.backend.api.common.exception.ResourceNotFoundException;
 import in.maisonnoir.backend.api.product.model.entity.ProductVariantEntity;
 import in.maisonnoir.backend.api.product.repository.ProductVariantDAO;
+import in.maisonnoir.backend.api.user.model.entity.UserEntity;
+import in.maisonnoir.backend.api.user.repository.UserDAO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

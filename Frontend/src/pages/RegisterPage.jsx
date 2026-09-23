@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import {useNavigate} from 'react-router-dom';
+import {useAuth} from '../hooks/useAuth';
 import AuthForm from './AuthForm';
 
 export default function RegisterPage() {

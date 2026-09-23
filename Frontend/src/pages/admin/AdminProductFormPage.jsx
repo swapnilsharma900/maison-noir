@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import { productsService } from '../../services/products';
+import {useEffect, useState} from 'react';
+import {Link, useNavigate, useParams} from 'react-router-dom';
+import {productsService} from '../../services/products';
 import ProductForm from '../../components/admin/ProductForm';
 import Spinner from '../../components/ui/Spinner';
 import Breadcrumb from '../../components/ui/Breadcrumb';
-import { toast } from '../../components/ui/Toast';
+import {toast} from '../../components/ui/Toast';
 
 export default function AdminProductFormPage() {
   const { productId } = useParams();

@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import {useEffect} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {useAuth} from '../hooks/useAuth';
 import AuthForm from './AuthForm';
 
 export default function LoginPage() {

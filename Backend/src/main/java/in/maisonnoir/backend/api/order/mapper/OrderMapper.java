@@ -6,7 +6,6 @@ import in.maisonnoir.backend.api.order.model.dto.OrderItemResponseDTO;
 import in.maisonnoir.backend.api.order.model.dto.OrderResponseDTO;
 import in.maisonnoir.backend.api.order.model.dto.PlaceOrderDTO;
 import in.maisonnoir.backend.api.order.model.entity.OrderEntity;
-import in.maisonnoir.backend.api.order.model.entity.OrderItemEntity;
 import in.maisonnoir.backend.api.order.model.enums.OrderStatus;
 import in.maisonnoir.backend.api.order.model.enums.PaymentStatus;
 

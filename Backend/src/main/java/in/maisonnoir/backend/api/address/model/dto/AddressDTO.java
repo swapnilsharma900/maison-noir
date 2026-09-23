@@ -3,11 +3,7 @@ package in.maisonnoir.backend.api.address.model.dto;
 import in.maisonnoir.backend.api.common.validation.SafeText;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Setter

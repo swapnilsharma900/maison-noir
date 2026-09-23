@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ordersService } from '../../services/orders';
+import {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
+import {ordersService} from '../../services/orders';
 import Spinner from '../../components/ui/Spinner';
 import Badge from '../../components/ui/Badge';
-import { SITE } from '../../config/site';
-import { toast } from '../../components/ui/Toast';
+import {SITE} from '../../config/site';
+import {toast} from '../../components/ui/Toast';
 
 const STATUS_FILTERS = [
   { label: 'All', value: '' },

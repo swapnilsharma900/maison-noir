@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { productsService } from '../../services/products';
+import {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
+import {productsService} from '../../services/products';
 import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import Badge from '../../components/ui/Badge';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
-import { toast } from '../../components/ui/Toast';
-import { resolveProductImage } from '../../utils/images';
+import {toast} from '../../components/ui/Toast';
+import {resolveProductImage} from '../../utils/images';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);

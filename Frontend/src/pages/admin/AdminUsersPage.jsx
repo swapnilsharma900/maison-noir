@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { userService } from '../../services/user';
-import { useAuth } from '../../hooks/useAuth';
+import {useEffect, useState} from 'react';
+import {Link} from 'react-router-dom';
+import {userService} from '../../services/user';
+import {useAuth} from '../../hooks/useAuth';
 import Spinner from '../../components/ui/Spinner';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
-import { toast } from '../../components/ui/Toast';
+import {toast} from '../../components/ui/Toast';
 
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth();

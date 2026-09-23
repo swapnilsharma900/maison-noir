@@ -1,6 +1,6 @@
-import { NavLink } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { SITE } from '../../config/site';
+import {NavLink} from 'react-router-dom';
+import {useAuth} from '../../hooks/useAuth';
+import {SITE} from '../../config/site';
 
 const NAV_ITEMS = [
   { label: 'Dashboard', to: '/admin', end: true },

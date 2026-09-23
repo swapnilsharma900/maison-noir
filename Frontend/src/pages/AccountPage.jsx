@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import {useState} from 'react';
+import {useAuth} from '../hooks/useAuth';
 import Container from '../components/ui/Container';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import { toast } from '../components/ui/Toast';
-import { userService } from '../services/user';
+import {toast} from '../components/ui/Toast';
+import {userService} from '../services/user';
 
 export default function AccountPage() {
   const { user, updateProfile } = useAuth();

@@ -1,4 +1,4 @@
-import { api } from './api';
+import {api} from './api';
 
 export const productsService = {
   getAll: () => api.get('/api/products'),

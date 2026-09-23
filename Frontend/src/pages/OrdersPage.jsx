@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { ordersService } from '../services/orders';
+import {useEffect, useState} from 'react';
+import {ordersService} from '../services/orders';
 import Container from '../components/ui/Container';
 import Spinner from '../components/ui/Spinner';
 import EmptyState from '../components/ui/EmptyState';

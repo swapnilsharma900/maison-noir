@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import {Link} from 'react-router-dom';
+import {useAuth} from '../../hooks/useAuth';
 import StatsPlaceholder from '../../components/admin/StatsPlaceholder';
 import Button from '../../components/ui/Button';
 

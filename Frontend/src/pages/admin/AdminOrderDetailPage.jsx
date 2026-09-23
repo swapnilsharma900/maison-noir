@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ordersService } from '../../services/orders';
+import {useEffect, useState} from 'react';
+import {Link, useParams} from 'react-router-dom';
+import {ordersService} from '../../services/orders';
 import Button from '../../components/ui/Button';
 import Badge from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
 import Breadcrumb from '../../components/ui/Breadcrumb';
 import Input from '../../components/ui/Input';
-import { toast } from '../../components/ui/Toast';
-import { SITE } from '../../config/site';
-import { resolveProductImage } from '../../utils/images';
+import {toast} from '../../components/ui/Toast';
+import {SITE} from '../../config/site';
+import {resolveProductImage} from '../../utils/images';
 
 const ORDER_STATUSES = [
   'PENDING',

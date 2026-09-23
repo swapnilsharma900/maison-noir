@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import Badge from './Badge';
-import { SITE } from '../../config/site';
+import {SITE} from '../../config/site';
 
 const statusBadgeVariant = {
   PENDING: 'warning',

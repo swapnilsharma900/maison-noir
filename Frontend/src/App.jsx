@@ -1,6 +1,6 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import { CartProvider } from './contexts/CartContext';
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
+import {AuthProvider} from './contexts/AuthContext';
+import {CartProvider} from './contexts/CartContext';
 import Layout from './components/layout/Layout';
 import AdminRoute from './components/admin/AdminRoute';
 import AdminLayout from './components/admin/AdminLayout';

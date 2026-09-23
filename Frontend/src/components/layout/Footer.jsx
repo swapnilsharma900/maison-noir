@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { SITE } from '../../config/site';
+import {Link} from 'react-router-dom';
+import {SITE} from '../../config/site';
 
 export default function Footer() {
   return (
