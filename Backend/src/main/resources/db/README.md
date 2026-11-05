@@ -2,32 +2,7 @@
 
 This directory contains scripts and documentation for the dual‑database architecture (MySQL + MongoDB).
 
-## 📂 Directory Structure
-
-> Backend/src/main/resources/db/
-> 
-> > mysql/
-> > 
-> > > schema.sql # MySQL table definitions (DDL) – for reference
-> > > 
-> > > data.sql # MySQL seed data (DML) – loaded automatically on startup
-> > > 
-> > > clear.sql # Truncate all MySQL tables
-> > 
-> > mongodb/
-> > 
-> > > schema.js # MongoDB collection validation & indexes
-> > > 
-> > > data.js # MongoDB seed data (products & variants)
-> > > 
-> > > clear.js # Clear all MongoDB collections
-> > 
-> > README.md # This file
-
----
-
 ## 🗄️ Database Overview
-
 | Database                    | Purpose                         | Main Tables/Collections                                              |
 | --------------------------- | ------------------------------- | -------------------------------------------------------------------- |
 | **MySQL** (`maison_noir`)   | Users, addresses, carts, orders | `users`, `addresses`, `carts`, `cart_items`, `orders`, `order_items` |
@@ -37,109 +12,44 @@ This directory contains scripts and documentation for the dual‑database archit
 
 ---
 
-## 🚀 Automatic Seeding on Startup
+## 🚀 Automated Seeding on Startup (No Manual Scripts Required)
 
-The backend is configured to automatically run `mysql/data.sql` on startup:
+To eliminate the friction of manually running `schema.sql`, `schema.js`, and mapping Variant IDs between databases, the Maison Noir backend is configured to **automatically initialize and seed data** when running the `dev` profile.
 
+### 1. MySQL Automation
+When using `application-dev.properties`, the following properties ensure MySQL is created and populated automatically:
 ```properties
-# application.properties
+# Creates the DB if missing
+spring.datasource.url=jdbc:mysql://localhost:3306/maison_noir?createDatabaseIfNotExist=true
+
+# Automatically runs schema.sql and data.sql
 spring.sql.init.mode=always
-spring.sql.init.data-locations=classpath:db/mysql/data.sql
 spring.jpa.defer-datasource-initialization=true
 ```
 
-This ensures fresh seed data each time the application restarts (useful for development).
+### 2. MongoDB Automation & Variant ID Syncing
+Instead of manually running Mongo shell scripts (`data.js`) and copying ObjectIDs to MySQL, the project utilizes a Spring Boot `CommandLineRunner` (e.g., `DatabaseSeeder.java`). 
+
+On startup, this component:
+1. Checks if the MongoDB `products` collection is empty.
+2. If empty, it inserts the default luxury products into MongoDB.
+3. It retrieves the newly generated MongoDB `_id`s.
+4. It updates the placeholder IDs (e.g., `VARIANT_NOIR_TEE_M`) in the MySQL `cart_items` and `order_items` tables with the real MongoDB `_id`s.
+
+*This guarantees that your relational constraints and NoSQL documents are perfectly synced every time you spin up a fresh development environment.*
 
 ---
 
-## 🔄 How to Reset & Seed Data - Manually
+## 🔄 Manual Reset (If Needed)
+If you ever need to completely wipe the databases and let Spring Boot re-seed them from scratch on the next boot:
 
-Run commands from the **repository root** (`maison-noir/`).
-
-### 1. Clear Existing Data
-
-#### MySQL
-
+**MySQL (Wipe via terminal):**
 ```bash
-# Linux/macOS
-mysql -u root -p maison_noir < Backend/src/main/resources/db/mysql/clear.sql
-
-# Windows (PowerShell)
-Get-Content Backend\src\main\resources\db\mysql\clear.sql | mysql -u root -p maison_noir
+mysql -u root -p -e "DROP DATABASE maison_noir;"
 ```
 
-#### MongoDB
-
+**MongoDB (Wipe via mongosh):**
 ```bash
-# Linux/macOS
-mongosh --file Backend/src/main/resources/db/mongodb/clear.js
-
-# Windows (PowerShell)
-mongosh --file Backend\src\main\resources\db\mongodb\clear.js
+mongosh mongodb://localhost:27017/maison_noir --eval "db.dropDatabase()"
 ```
-
-### 2. Seed Fresh Data (Run in Order)
-
-#### MySQL (First)
-
-```bash
-# Linux/macOS
-mysql -u root -p maison_noir < Backend/src/main/resources/db/mysql/data.sql
-
-# Windows (PowerShell)
-Get-Content Backend\src\main\resources\db\mysql\data.sql | mysql -u root -p maison_noir
-```
-
-#### MongoDB (Second)
-
-```bash
-# Linux/macOS
-mongosh --file Backend/src/main/resources/db/mongodb/data.js
-
-# Windows (PowerShell)
-mongosh --file Backend\src\main\resources\db\mongodb\data.js
-```
-
-### 3. Sync Variant IDs (MySQL ↔ MongoDB)
-
-After seeding, the `variant_id` columns in `cart_items` and `order_items` contain **placeholder strings** (e.g., `VARIANT_NOIR_TEE_M`). You must replace these with the actual MongoDB `_id` values from the `items` collection.
-
-To get the mapping, run:
-
-```javascript
-// In mongosh
-use('maison_noir');
-db.items.find({}, {_id: 1, name: 1}).forEach(doc => print(doc._id + ' => ' + doc.name));
-```
-
-Then update MySQL manually (or script it) to replace the placeholders with the real IDs.
-
----
-
-## 🧪 Validation & Indexes
-
-- MySQL schema is managed by Hibernate (`ddl-auto=update`) – `schema.sql` is only for reference.
-
-- MongoDB schema validation and indexes are defined in `schema.js` – run this once to apply them.
-
-To apply MongoDB schema validation:
-
-```bash
-mongosh --file Backend/src/main/resources/db/mongodb/schema.js
-```
-
----
-
-## ❓ Troubleshooting
-
-- **“Access denied”** – verify MySQL credentials and that the database `maison_noir` exists.
-
-- **MongoDB connection refused** – ensure MongoDB is running and the URI is correct.
-
-- **Variant ID mismatch** – after seeding, always sync the placeholder IDs with actual MongoDB `_id`s.
-
----
-
-## 📄 License
-
-Proprietary – all rights reserved.
+*Restart the Spring Boot application, and both databases will be recreated and synchronized seamlessly.*

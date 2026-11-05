@@ -5,161 +5,91 @@ This directory contains the Spring Boot backend application for the Maison Noir 
 ---
 
 ## 🏗️ Architecture Overview
-
 The backend is built using a layered architecture:
-
 - **Controller** – REST endpoints (Spring MVC)
 - **Service** – Business logic
 - **Repository** – Data access (Spring Data JPA / MongoDB)
 - **Security** – JWT authentication & role‑based authorization
 
 ### Database Strategy
-
 - **MySQL** – Stores users, addresses, carts, orders (relational data)
 - **MongoDB** – Stores product catalog and variants (document data)
 
-This hybrid approach optimizes for both structured transactions and flexible product schemas.
-
 ---
 
-## 🛠️ Technologies
+## ⚙️ Configuration & Environment Profiles
 
-- **Framework**: Spring Boot 3.5.x
-- **Language**: Java 24
-- **Security**: Spring Security 6, JWT (JJWT)
-- **Data Access**: Spring Data JPA (Hibernate), Spring Data MongoDB
-- **API Documentation**: SpringDoc OpenAPI (Swagger UI)
-- **Build Tool**: Maven (wrapper included)
-- **Database Drivers**: MySQL Connector/J, MongoDB Java Driver
+The backend utilizes Spring Profiles to separate local development from production. 
 
----
+### 1. Local Development (`application-dev.properties`)
+Use this profile for running the application on your local machine. It connects to localhost databases and **automatically creates and seeds the database** to save setup time.
 
-## 📦 Prerequisites
+```properties
+# Server
+server.port=8080
 
-- Java 24 (or 21+)
-- Maven (or use the wrapper)
-- MySQL 8.0+ & MongoDB 6.0+ (local or cloud)
+# MySQL - Notice 'createDatabaseIfNotExist=true' which prevents "No database selected" errors
+spring.datasource.url=jdbc:mysql://localhost:3306/maison_noir?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=your_local_password
 
----
+# Auto-execute schema.sql and data.sql on startup
+spring.sql.init.mode=always
+spring.jpa.defer-datasource-initialization=true
 
-## ⚙️ Configuration
+# MongoDB
+spring.data.mongodb.uri=mongodb://localhost:27017/maison_noir
 
-All configuration is in `src/main/resources/application.properties` (or `application-{profile}.properties`). Key settings:
+# JWT
+jwt.secret=local_development_secret_key_change_me
+jwt.expiration=86400000
+```
+
+### 2. Production (`application-prod.properties`)
+Used when deploying to Render or other cloud providers. This relies on Environment Variables (`${...}`) injected by the host, and **disables** automatic schema initialization to protect production data.
 
 ```properties
 # Server
 server.port=${PORT:8080}
 
-# MySQL
-spring.datasource.url=${MYSQL_URL:jdbc:mysql://localhost:3306/maison_noir}
-spring.datasource.username=${MYSQL_USER:root}
-spring.datasource.password=${MYSQL_PASSWORD:}
+# MySQL (Aiven / Cloud)
+spring.datasource.url=${MYSQL_URL}
+spring.datasource.username=${MYSQL_USER}
+spring.datasource.password=${MYSQL_PASSWORD}
 
-# MongoDB
-spring.data.mongodb.uri=${MONGODB_URI:mongodb://localhost:27017/maison_noir}
+# NEVER auto-init data in production
+spring.sql.init.mode=never
+spring.jpa.hibernate.ddl-auto=validate
+
+# MongoDB (Atlas)
+spring.data.mongodb.uri=${MONGODB_URI}
 
 # JWT
-jwt.secret=${JWT_SECRET:your_jwt_secret_key}
-jwt.expiration=${JWT_EXPIRATION:86400000}
+jwt.secret=${JWT_SECRET}
+jwt.expiration=86400000
 ```
 
-Override any setting using environment variables – this is especially useful for deployment.
+*To switch profiles locally, set `spring.profiles.active=dev` in your `application.properties`.*
 
 ---
 
 ## 🚀 Running the Backend
 
 ### Using Maven Wrapper
-
 ```bash
 # Linux/macOS
-./mvnw clean spring-boot:run
+./mvnw clean spring-boot:run -Dspring-boot.run.profiles=dev
 
 # Windows
-.\mvnw clean spring-boot:run 
-```
-
-### Build a JAR and Run
-
-```bash
-./mvnw clean package
-java -jar target/Backend-*.jar
-```
-
----
-
-## 🧪 API Documentation
-
-Once running, visit Swagger UI:
-
-```text
-http://localhost:8080/swagger-ui.html
-```
-
-You can also download the OpenAPI spec at:
-
-```text
-http://localhost:8080/v3/api-docs
+.\mvnw clean spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 ---
 
 ## 🔐 Security & Authentication
+The API uses **JWT tokens** for stateless authentication. To access protected endpoints, include the token in the `Authorization` header:
+`Authorization: Bearer <jwt_token>`
 
-The API uses **JWT tokens** for stateless authentication. To access protected endpoints, include the token in the `Authorization` header:
-
-```text
-Authorization: Bearer <jwt_token>
-```
-
-Public endpoints (e.g., login, register, product listing) are exempt.
-
-**Roles:**
-
-- **ROLE_ADMIN** – Full access to admin endpoints
-
-- **ROLE_CUSTOMER** – Standard user permissions
-
----
-
-## 🗄️ Database Schema
-
-- MySQL schema is defined via Hibernate DDL (`ddl-auto=update`) – see `src/main/resources/db/mysql/schema.sql` for reference.
-
-- MongoDB collections are validated by `src/main/resources/db/mongodb/schema.js`.
-
-See the [Database README](src/main/resources/db/README.md) for seeding instructions.
-
----
-
-## 🧹 Testing
-
-Run unit and integration tests:
-
-```bash
-./mvnw test
-```
-
-For test coverage, use:
-
-```bash
-
-```
-
----
-
-## 📦 Deployment
-
-The backend is deployed on **Render** as a Docker container. The `Dockerfile` at the project root builds both frontend and backend into a single image. Ensure environment variables (database URLs, JWT secret) are set in Render’s dashboard.
-
----
-
-## 🤝 Contributing
-
-Follow the same guidelines as the main project. Please write unit tests for new features.
-
----
-
-## 📄 License
-
-Proprietary – all rights reserved.
+Roles:
+- **ROLE_ADMIN** – Full access to admin endpoints
+- **ROLE_CUSTOMER** – Standard user permissions

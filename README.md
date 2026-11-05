@@ -7,7 +7,6 @@ Maison Noir is a full‑stack e‑commerce platform for luxury men’s fashion. 
 ---
 
 ## ✨ Features
-
 - 🛍️ Product catalog with variants (MongoDB)
 - 🛒 Shopping cart & order management (MySQL)
 - 🔐 JWT‑based authentication & role‑based access (Admin / Customer)
@@ -19,7 +18,6 @@ Maison Noir is a full‑stack e‑commerce platform for luxury men’s fashion. 
 ---
 
 ## 🧱 Tech Stack
-
 | Layer         | Technologies                                            |
 | ------------- | ------------------------------------------------------- |
 | **Frontend**  | React 19, Vite 7, Tailwind CSS 4, Material UI (MUI)     |
@@ -30,168 +28,86 @@ Maison Noir is a full‑stack e‑commerce platform for luxury men’s fashion. 
 ---
 
 ## 📁 Repository Structure
-
 > maison-noir/
-> 
-> > Backend/ # Spring Boot application
+> > Backend/                 # Spring Boot application
+> > > src/main/java/         # Java source code
+> > > src/main/resources/    # Configuration & Database scripts
+> > > pom.xml                # Maven build file
 > > 
-> > > src/main/java/ # Java source code
-> > > 
-> > > src/main/resources/ # Production Config
-> > > 
-> > > pom.xml # Maven build file
+> > Frontend/                # React application
+> > > src/                   # React source
+> > > public/                # Static assets
+> > > package.json           # npm dependencies
 > > 
-> > Frontend/ # React application
-> > 
-> > > src/ # React source
-> > > 
-> > > public/ # Static assets
-> > > 
-> > > package.json # npm dependencies
-> > 
-> > Dockerfile # Multi‑stage Docker build
-> > 
-> > README.md # This file
+> > Dockerfile               # Multi‑stage Docker build
+> > README.md                # This file
 
 ---
 
 ## 🚀 Getting Started (Local Development)
 
 ### Prerequisites
-
 - **Java 24** (or 21+)
-
 - **Maven** (included as wrapper)
-
-- **Node.js** 18+ and **npm** 9+
-
-- **MySQL** 8.0+
-
-- **MongoDB** 6.0+ (local or Atlas)
-
+- **Node.js 20.19+ or 22+** (CRITICAL: Vite 7 will fail on Node 18)
+- **MySQL 8.0+** (Running on port 3306)
+- **MongoDB 6.0+** (Running on port 27017, local or Atlas)
 - **Git**
-  
-  ### 1. Clone the Repository
-  
-  ```bash
-  git clone https://github.com/swapnilsharma900/maison-noir.git
-  cd maison-noir
-  ```
 
-### 2. Set Up Databases
+### 1. Clone the Repository
+```bash
+git clone https://github.com/swapnilsharma900/maison-noir.git
+cd maison-noir
+```
 
-        Create two databases in MySQL and MongoDB:
+### 2. Configure Backend Databases
+You do **not** need to manually create the MySQL database or run schema scripts. Spring Boot is configured to handle this automatically during startup.
+1. Navigate to `Backend/src/main/resources/`.
+2. Ensure your active properties file (e.g., `application-dev.properties`) contains the local database credentials.
+*(See [Backend Architecture & Setup](Backend/README.md) for property details).*
 
-- **MySQL** – database name: `maison_noir`
-
-- **MongoDB** – database name: `maison_noir`
-
-Refer to [Database Documentation](Backend/src/main/resources/db/README.md) for seeding initial data.
-
-### 3. Configure Environment Variables
-
-Create a `.env` file in the `Frontend/` directory (or set in Render’s dashboard):
-
-`VITE_API_URL = http://localhost:8080   # or your backend URL`
-
-Refer to [Frontend Documentation](Frontend/README.md) for detailed setup
+### 3. Configure Frontend Environment
+Create a `.env` file in the `Frontend/` directory (copy from `.env.example`):
+```env
+VITE_API_URL=http://localhost:8080
+```
 
 ### 4. Build and Run the Backend
-
-```cd
+```bash
 cd Backend
 ./mvnw clean spring-boot:run   # Linux/macOS
-.\mvnw spring-boot:run         # Windows
+.\mvnw spring-boot:run        # Windows
 ```
-
-The backend API will be available at `http://localhost:8080`.  
-Swagger UI: `http://localhost:8080/swagger-ui.html`
-
-For more detail about Project Backend refer to [Backend Documentation](Backend/README.md)
+The backend API will be available at `http://localhost:8080`.
+Swagger UI: `http://localhost:8080/swagger-ui.html`
 
 ### 5. Build and Run the Frontend
-
 Open a new terminal:
-
-```
+```bash
 cd Frontend
 npm install
 npm run dev
 ```
-
-The frontend development server will run on `http://localhost:5173`.
+The frontend development server will run on `http://localhost:5173`.
 
 ---
 
 ## 🐳 Docker Deployment
-
 The project includes a multi‑stage Dockerfile that builds both frontend and backend into a single image. To build and run locally:
-
-```
+```bash
 docker build -t maison-noir .
 docker run -p 8080:8080 maison-noir
 ```
 
-For production deployment (Render), the Dockerfile is used with Render’s build environment variables.
+---
+
+## 📖 API Documentation & Links
+- **Swagger UI**: `http://localhost:8080/swagger-ui.html`
+- **Frontend App**: `http://localhost:5173`
 
 ---
 
-## 🧪 Testing
-
-- **Backend tests** – run `./mvnw test` in the `Backend/` directory.
-
----
-
-## 📖 API Documentation
-
-Once the backend is running, explore the API interactively via Swagger UI at:
-
-```
-http://localhost:8080/swagger-ui.html
-```
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository.
-
-2. Create a feature branch (`git checkout -b feature/amazing-feature`).
-
-3. Commit your changes (`git commit -m 'Add some amazing feature'`).
-
-4. Push to the branch (`git push origin feature/amazing-feature`).
-
-5. Open a Pull Request.
-
----
-
-## 📄 License
-
-This project is proprietary – all rights reserved.
-
----
-
-## 📬 Contact
-
-**Swapnil Sharma** – [GitHub](https://github.com/swapnilsharma900)
-
-**Project Link** – [GitHub - swapnilsharma900/maison-noir](https://github.com/swapnilsharma900/maison-noir)
-
----
-
-## 🙏 Acknowledgements
-
-- Spring Boot & React communities
-
-- Render for seamless deployment
-
-- MongoDB & MySQL for powerful data storage
-
----
-
-## Project Structure & Documentation
-
-- **[Backend Architecture & Setup](Backend/README.md):** Information on the Spring Boot backend, APIs, and how to run the server.
-- **[Database Architecture & Setup](Backend/src/main/resources/db/README.md):** Information on our dual-database strategy {Mysql + MongoDB} and seeding scripts.
-- **[Frontend Architecture & Documentation](Frontend/README.md):** Information on the React + Vite frontend with Tailwind CSS Styling and how to setup & run the frontend server.
+## 📚 Detailed Documentation
+- **[Backend Architecture & Setup](Backend/README.md):** Spring Boot configurations, application profiles (dev/prod).
+- **[Database Architecture & Setup](Backend/src/main/resources/db/README.md):** Dual-database strategy and automated data seeding.
+- **[Frontend Architecture & Documentation](Frontend/README.md):** React + Vite setup and styling guidelines.
